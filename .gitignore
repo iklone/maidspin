@@ -1,0 +1,5 @@
+node_modules/
+
+password.config
+spinData.json
+package-lock.json
