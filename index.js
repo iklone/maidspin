@@ -9,6 +9,23 @@ const coolDownMins = 15;
 //on startup
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    
+    fs.readFile('spinData.json', function(err, data) {
+        if (err) {
+            return console.error(err);
+        }
+
+        var spinData = JSON.parse(data.toString());
+        currentTime = new Date();
+        spinData["lastSpin"] = currentTime - (60000 * coolDownMins);
+
+        newJSON = JSON.stringify(spinData);
+        fs.writeFile('spinData.json', newJSON, function(err) {
+            if (err) {
+                return console.error(err);
+            }
+        });
+    });
 });
 
 function printSpin(msg, spins, total) {
@@ -56,14 +73,14 @@ function updateCount(msg) {
 
             spinData["users"].push(newUserObj);
             msg.channel.send("Free spin for new user!");
-            console.log("New user " + `${newUserObj.name}` + " spun the maid at " + `${newUserObj.lastSpin}` + ". (" + `${newUserObj.spins}` + " spins)");
+            console.log("New user " + `${newUserObj.name}` + " spun the maid. (" + `${newUserObj.spins}` + " spins)");
 
             total = newUserObj.spins;
         } else { //old user, check for timeout
             if (elapsedMins >= coolDownMins) { //cooldown over, spin
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
-                console.log(`${olduser.name}` + " spun the maid at " + `${lastSpin}` + ". (" + `${olduser.spins}` + " spins total)");
+                console.log(`${olduser.name}` + " spun the maid. (" + `${olduser.spins}` + " spins total)");
 
                 total = olduser.spins;
             } else { //cooldown not over, no spin
@@ -169,7 +186,15 @@ function timerUp(msg) {
         elapsedMins = Math.floor((currentTime - lastSpin) / 60000);
         if (elapsedMins >= coolDownMins) {
             verbVar = "CAN";
-            extraInfo = "";
+
+            spins = (elapsedMins - coolDownMins + 1);
+            if (spins == 1) {
+                nounVar = "maid is";
+            } else {
+                nounVar = "maids are";
+            }
+
+            extraInfo = spins + " " + nounVar + " waiting to be spun!\n";
         } else {
             verbVar = "cannot"
             extraInfo = "The next maid can be spun in " + (coolDownMins - elapsedMins) + ' mins.\nFor more information use *"**@Maid Spin** help"*\n';
