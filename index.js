@@ -2,17 +2,22 @@ const Discord = require('discord.js');
 var fs = require('fs');
 
 const client = new Discord.Client();
-
 const myID = "715582108600369253";
+
+const coolDownMins = 15;
 
 //on startup
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-function printSpin(msg, spins) {
-    console.log(`${msg.author.username}` + " spun the maid. *(" + spins + " spins)*");
-    msg.channel.send(`${msg.author}` + " spun the maid. *(" + spins + " spins)*");
+function printSpin(msg, spins, total) {
+    if (spins == 1) {
+        nounVar = "maid";
+    } else {
+        nounVar = "maids";
+    }
+    msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
     msg.channel.send("https://i.imgur.com/7hqhB0M.gif");
 }
 
@@ -33,27 +38,50 @@ function updateCount(msg) {
             }
         }
 
-        if (newUser) {
+        //calc spin amount
+        oldTime = new Date(spinData["lastSpin"]);
+        currentTime = new Date();
+        elapsedMins = Math.floor((currentTime - oldTime) / 60000);
+
+        amount = (elapsedMins - coolDownMins) + 1;
+
+        spinKA = true;
+        if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
             newUserObj.name = msg.author.username;
-            newUserObj.spins = 1;
-            spinData["users"].push(newUserObj);
 
-            spins = newUserObj.spins;
-        } else {
-            olduser.spins = olduser.spins + 1;
-            spins = olduser.spins;
+            amount = 1; //only 1 for first free spin
+            newUserObj.spins = amount;
+
+            spinData["users"].push(newUserObj);
+            msg.channel.send("Free spin for new user!");
+            console.log("New user " + `${newUserObj.name}` + " spun the maid at " + `${newUserObj.lastSpin}` + ". (" + `${newUserObj.spins}` + " spins)");
+
+            total = newUserObj.spins;
+        } else { //old user, check for timeout
+            if (elapsedMins >= coolDownMins) { //cooldown over, spin
+                spinData["lastSpin"] = currentTime;
+                olduser.spins = olduser.spins + amount;
+                console.log(`${olduser.name}` + " spun the maid at " + `${lastSpin}` + ". (" + `${olduser.spins}` + " spins total)");
+
+                total = olduser.spins;
+            } else { //cooldown not over, no spin
+                spinKA = false;
+                msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
+            }
         }
 
-        newJSON = JSON.stringify(spinData);
-        fs.writeFile('spinData.json', newJSON, function(err) {
-            if (err) {
-                return console.error(err);
-            }
-        });
-
-        printSpin(msg, spins);
+        //if spinKA is still true, save spin details and post spin
+        if (spinKA) {
+            newJSON = JSON.stringify(spinData);
+            fs.writeFile('spinData.json', newJSON, function(err) {
+                if (err) {
+                    return console.error(err);
+                }
+            });
+            printSpin(msg, amount, total);
+        }
     });
 }
 
@@ -62,7 +90,7 @@ function spin(msg) {
 }
 
 function spinTest(msg) {
-    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist).*(maid|meido|mori))|((maid|meido|mori).*(spin|twirl|rotat|turn|twist))).*/i);
+    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrate|spun|span|revolve).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve))).*/i);
     if (spinRegex.test(msg.content)) {
         spin(msg);
     }
@@ -71,9 +99,11 @@ function spinTest(msg) {
 //print help
 function spinHelp(msg) {
     msg.channel.send("***Maid Spin Help:***\n" +
-    "This bot lets you do what everyone has always wanted to do: **spin maids**.\n" +
+    "This bot lets you do what everyone has always wanted to do: **SPIN MAIDS**.\n" +
     'To spin a maid simply command her to spin by saying *"Spin the maid!"* or something similar into the chat.\n' +
-    "The amount of maids you have spun will show up whenever you spin.\n" +
+    'The maids can only spin every **' + coolDownMins + " mins**, they get dizzy!\n" +
+    'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
+    'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
     'To view how many maids another user has spun, use *"**@Maid Spin** **@username**"*.\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.');
 }
@@ -126,6 +156,30 @@ function topSpins(msg) {
     });
 }
 
+function timerUp(msg) {
+    fs.readFile('spinData.json', function(err, data) {
+        if (err) {
+            return console.error(err);
+        }
+
+        var spinData = JSON.parse(data.toString());
+        currentTime = new Date();
+        lastSpin = new Date(spinData["lastSpin"]);
+
+        elapsedMins = Math.floor((currentTime - lastSpin) / 60000);
+        if (elapsedMins >= coolDownMins) {
+            verbVar = "CAN";
+            extraInfo = "";
+        } else {
+            verbVar = "cannot"
+            extraInfo = "The next maid can be spun in " + (coolDownMins - elapsedMins) + ' mins.\nFor more information use *"**@Maid Spin** help"*\n';
+        }
+
+        msg.channel.send("The last maid was spun " + elapsedMins + " mins ago. The cooldown is " + coolDownMins + " mins.\n" + extraInfo + "You **" + verbVar + "** spin a maid now.");
+
+    });
+}
+
 //on message
 client.on('message', msg => {
     //stop if msg by self
@@ -138,7 +192,7 @@ client.on('message', msg => {
             trueContent = msg.content.substr(23);
             console.log(trueContent);
 
-            //if contains an @, view spin count
+            //if contains another @, view spin count
             atRegex = new RegExp(/.*<@!.*>.*/i);
             if (n && atRegex.test(trueContent)) {
                 n = false;
@@ -155,10 +209,17 @@ client.on('message', msg => {
             }
 
             //test for leaderboard
-            topRegex = new RegExp(/.*(top|high|leader|score|board).*/i);
+            topRegex = new RegExp(/.*(top|high|leader|score|board|ladder).*/i);
             if (n && topRegex.test(trueContent)) {
                 n = false;
                 topSpins(msg);
+            }
+
+            //test for leaderboard
+            timerRegex = new RegExp(/.*(tim|tu|clock).*/i);
+            if (n && timerRegex.test(trueContent)) {
+                n = false;
+                timerUp(msg);
             }
 
             //Else then try to spin
@@ -173,6 +234,12 @@ client.on('message', msg => {
         } else {
             //spin
             spinTest(msg);
+
+	    //test for leaderboard
+            jojoRegex = new RegExp(/.*(jojo).*/i);
+            if (n && jojoRegex.test(msg.content)) {
+                msg.channel.send("Jojo is bad.");
+            }
         }
     }
 });
