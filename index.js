@@ -4,7 +4,7 @@ var fs = require('fs');
 const client = new Discord.Client();
 const myID = "715582108600369253";
 
-const coolDownMins = 15;
+const coolDownMins = 5;
 
 //on startup
 client.on('ready', () => {
@@ -107,7 +107,7 @@ function spin(msg) {
 }
 
 function spinTest(msg) {
-    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrate|spun|span|revolve).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve))).*/i);
+    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve))).*/i);
     if (spinRegex.test(msg.content)) {
         spin(msg);
     }
