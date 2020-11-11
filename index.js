@@ -116,6 +116,7 @@ function updateCount(msg) {
             } else { //cooldown not over, no spin
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
+                msg.channel.send("https://i.imgur.com/spr5vSH.gif");
             }
         }
 
