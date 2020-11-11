@@ -7,8 +7,10 @@ const myID = "715582108600369253";
 const coolDownMins = 5;
 //base 5 mins
 
-const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif", "https://i.imgur.com/WxIrcsu.gif", "https://i.imgur.com/RJCx1rX.gif"];
-//[mori, maria]
+const dizzyGIF = "https://i.imgur.com/spr5vSH.gif"; //shows on no spin
+const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif", "https://i.imgur.com/WxIrcsu.gif", "https://i.imgur.com/2zr3Y66.gif", "https://i.imgur.com/rvdiMVi.gif", "https://i.imgur.com/ewDf0ZS.gif", "https://i.imgur.com/z6sjRXh.gif", "https://i.imgur.com/RJCx1rX.gif"];
+//[mori, maria, shinobu, misaki, siesta, maika, bikiniMori]
+// 0     1      2        3       4       5      6
 
 //on startup
 client.on('ready', () => {
@@ -40,14 +42,19 @@ function printSpin(msg, spins, total, spinType) {
     }
     msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
     
-    //if maria roll
-    if (spinType == 1) {
+    //if x2
+    if (spinType == 3 || spinType == 4) {
         msg.channel.send("The maids span extra fast today! *(x2 spins)*");
     }
 
-    //if bikini roll
-    if (spinType == 2) {
-        msg.channel.send("Wow! Today is the beach episode! *(x5 spins)*");
+    //if x5
+    if (spinType == 5) {
+        msg.channel.send("We brought the maid-spinomatic out for this one! *(x5 spins)*");
+    }
+
+    //if x10
+    if (spinType == 6) {
+        msg.channel.send("Wow! Today is the beach episode! *(x10 spins)*");
     }
 
     msg.channel.send(maidGIFs[spinType]);
@@ -80,17 +87,39 @@ function updateCount(msg) {
         //calc special rolls
         spinType = 0;
         ran = Math.floor(Math.random() * 100); //ran = 0-99
-        if (ran > 75) { // 1 in 4 (25%)
-            if (ran > 95) { // 1 in 20 (5%)
-                //bikiniMori roll x5
-                amount = amount * 5;
-                spinType = 2;
+        if (ran > 40) { //60% chance
+            if (ran > 60) { // 40% chance
+                if (ran > 75) { // 25% chance
+                    if (ran > 85) { // 15% chance
+                        if (ran > 90) { // 10% chance
+                            if (ran > 97) { // 2% chance (round error)
+                                //bikinimori x10
+                                spinType = 6;
+                                amount = amount * 10;
+                            } else {
+                                //maika x5
+                                spinType = 5;
+                                amount = amount * 5;
+                            }
+                        } else {
+                            //siesta x2
+                            spinType = 4;
+                            amount = amount * 2;
+                        }
+                    } else {
+                        //misaki x2
+                        spinType = 3;
+                        amount = amount * 2;
+                    }
+                } else {
+                    //shinobu
+                    spinType = 2;
+                }
             } else {
-                //maria roll x2
-                amount = amount * 2;
+                //maria
                 spinType = 1;
             }
-        } //else mori roll x1
+        } //else mori
 
         spinKA = true;
         if (newUser) { //create new user entry
@@ -110,13 +139,13 @@ function updateCount(msg) {
             if (elapsedMins >= coolDownMins) { //cooldown over, spin
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
-                console.log(`${olduser.name}` + " spun the maid. (" + `${olduser.spins}` + " spins total)");
+                console.log(`${olduser.name}` + " spun the maid. (" + `${olduser.spins}` + " spins total) ran = " + ran);
 
                 total = olduser.spins;
             } else { //cooldown not over, no spin
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
-                msg.channel.send("https://i.imgur.com/spr5vSH.gif");
+                msg.channel.send(dizzyGIF);
             }
         }
 
@@ -138,7 +167,7 @@ function spin(msg) {
 }
 
 function spinTest(msg) {
-    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revolve))).*/i);
+    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrat|spun|span|revol).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revol))).*/i);
     if (spinRegex.test(msg.content)) {
         spin(msg);
     }
@@ -244,17 +273,15 @@ client.on('message', msg => {
         n = true;
 
         //if @bot then command
-        if (n && msg.content.substr(0, 22) == "<@!" + myID + ">") {
+        if (n && msg.mentions.users.array().length > 0 && msg.mentions.users.array()[0]["id"] == myID) {
             trueContent = msg.content.substr(23);
             console.log(trueContent);
 
             //if contains another @, view spin count
-            atRegex = new RegExp(/.*<@!.*>.*/i);
-            if (n && atRegex.test(trueContent)) {
+            if (n && msg.mentions.users.array().length > 1) {
                 n = false;
 
-                atID = trueContent.split('<@!')[1];
-                atID = atID.split('>')[0];
+                atID = msg.mentions.users.array()[1]["id"];
 
                 //if @ed the bot itself, else send to spin check func
                 if (atID == myID) {
@@ -299,7 +326,6 @@ client.on('message', msg => {
         }
     }
 });
-
 
 fs.readFile('password.config', function(err, data) {
     client.login(data.toString());
