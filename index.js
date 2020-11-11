@@ -87,12 +87,12 @@ function updateCount(msg) {
         //calc special rolls
         spinType = 0;
         ran = Math.floor(Math.random() * 100); //ran = 0-99
-        if (ran > 40) { //60% chance
-            if (ran > 60) { // 40% chance
-                if (ran > 75) { // 25% chance
-                    if (ran > 85) { // 15% chance
-                        if (ran > 90) { // 10% chance
-                            if (ran > 97) { // 2% chance (round error)
+        if (ran > 35) { //36% chance
+            if (ran > 55) { // 20% chance
+                if (ran > 75) { // 20% chance
+                    if (ran > 85) { // 10% chance
+                        if (ran > 90) { // 7% chance
+                            if (ran > 97) { // 2% chance
                                 //bikinimori x10
                                 spinType = 6;
                                 amount = amount * 10;
