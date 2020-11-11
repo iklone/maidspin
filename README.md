@@ -30,4 +30,8 @@ Live version coming soon.
 - https://i.imgur.com/7hqhB0M.gif: Mori from "GJ-bu".
 - https://i.imgur.com/spr5vSH.gif: Chiya Ujimatsu from "Is the Order a Rabbit?".
 - https://i.imgur.com/WxIrcsu.gif: Maria from "Hayate no Gotoku".
+- https://i.imgur.com/2zr3Y66.gif: Shinobu from Kiniro Mosaic.
+- https://i.imgur.com/rvdiMVi.gif: Misaki from Kaichou wa Maid-sama.
+- https://i.imgur.com/ewDf0ZS.gif: Siesta from Familiar of Zero.
+- https://i.imgur.com/z6sjRXh.gif: Maika Tsuchimikado from A Certain Magical Index.
 - https://i.imgur.com/RJCx1rX.gif: Also Mori from "GJ-bu".
