@@ -5,6 +5,10 @@ const client = new Discord.Client();
 const myID = "715582108600369253";
 
 const coolDownMins = 5;
+//base 5 mins
+
+const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif", "https://i.imgur.com/WxIrcsu.gif", "https://i.imgur.com/RJCx1rX.gif"];
+//[mori, maria]
 
 //on startup
 client.on('ready', () => {
@@ -28,14 +32,25 @@ client.on('ready', () => {
     });
 });
 
-function printSpin(msg, spins, total) {
+function printSpin(msg, spins, total, spinType) {
     if (spins == 1) {
         nounVar = "maid";
     } else {
         nounVar = "maids";
     }
     msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
-    msg.channel.send("https://i.imgur.com/7hqhB0M.gif");
+    
+    //if maria roll
+    if (spinType == 1) {
+        msg.channel.send("The maids span extra fast today! *(x2 spins)*");
+    }
+
+    //if bikini roll
+    if (spinType == 2) {
+        msg.channel.send("Wow! Today is the beach episode! *(x5 spins)*");
+    }
+
+    msg.channel.send(maidGIFs[spinType]);
 }
 
 function updateCount(msg) {
@@ -61,6 +76,21 @@ function updateCount(msg) {
         elapsedMins = Math.floor((currentTime - oldTime) / 60000);
 
         amount = (elapsedMins - coolDownMins) + 1;
+
+        //calc special rolls
+        spinType = 0;
+        ran = Math.floor(Math.random() * 100); //ran = 0-99
+        if (ran > 75) { // 1 in 4 (25%)
+            if (ran > 95) { // 1 in 20 (5%)
+                //bikiniMori roll x5
+                amount = amount * 5;
+                spinType = 2;
+            } else {
+                //maria roll x2
+                amount = amount * 2;
+                spinType = 1;
+            }
+        } //else mori roll x1
 
         spinKA = true;
         if (newUser) { //create new user entry
@@ -97,7 +127,7 @@ function updateCount(msg) {
                     return console.error(err);
                 }
             });
-            printSpin(msg, amount, total);
+            printSpin(msg, amount, total, spinType);
         }
     });
 }
