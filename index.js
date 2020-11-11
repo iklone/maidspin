@@ -139,12 +139,13 @@ function updateCount(msg) {
             if (elapsedMins >= coolDownMins) { //cooldown over, spin
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
-                console.log(`${olduser.name}` + " spun the maid. (" + `${olduser.spins}` + " spins total) ran = " + ran);
+                console.log(`${olduser.name}` + " spun " + amount + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ". (" + `${olduser.spins}` + " spins total) ran = " + ran);
 
                 total = olduser.spins;
             } else { //cooldown not over, no spin
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
+		console.log(`${olduser.name}` + " attempted to spin at " + currentTime.getHours() + ":" + currentTime.getMinutes());
                 msg.channel.send(dizzyGIF);
             }
         }
