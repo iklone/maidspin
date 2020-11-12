@@ -275,7 +275,7 @@ client.on('message', msg => {
 
         //if @bot then command
         if (n && msg.mentions.users.array().length > 0 && msg.mentions.users.array()[0]["id"] == myID) {
-            trueContent = msg.content.substr(23);
+            trueContent = msg.content;
             console.log(trueContent);
 
             //if contains another @, view spin count
@@ -299,7 +299,7 @@ client.on('message', msg => {
                 topSpins(msg);
             }
 
-            //test for leaderboard
+            //test for timer
             timerRegex = new RegExp(/.*(tim|tu|clock).*/i);
             if (n && timerRegex.test(trueContent)) {
                 n = false;
