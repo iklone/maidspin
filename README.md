@@ -4,8 +4,8 @@ A bot for Discord that lets you spin maids.
 
 ![Maid Spinning](https://i.imgur.com/WxIrcsu.gif)
  
-Live version coming soon.
- 
+The most revolutionary discord game ever created!
+
 ### Rules:
 - To spin a maid simply command her to spin by saying *"Spin the maid!"* or something similar into the chat.
 - The maids can only spin every 5 mins, they get dizzy!
@@ -27,11 +27,15 @@ Live version coming soon.
 - Run the application with "node index.js".
 
 ### GIF Sources:
-- https://i.imgur.com/7hqhB0M.gif: Mori from "GJ-bu".
-- https://i.imgur.com/spr5vSH.gif: Chiya Ujimatsu from "Is the Order a Rabbit?".
-- https://i.imgur.com/WxIrcsu.gif: Maria from "Hayate no Gotoku".
+- https://i.imgur.com/7hqhB0M.gif: Mori from GJ-bu.
+- https://i.imgur.com/spr5vSH.gif: Chiya Ujimatsu from Is the Order a Rabbit?.
+- https://i.imgur.com/WxIrcsu.gif: Maria from Hayate no Gotoku.
+- https://i.imgur.com/RJCx1rX.gif: Also Mori from GJ-bu.
 - https://i.imgur.com/2zr3Y66.gif: Shinobu from Kiniro Mosaic.
-- https://i.imgur.com/rvdiMVi.gif: Misaki from Kaichou wa Maid-sama.
+- https://i.imgur.com/rvdiMVi.gif: Misaki Ayuzawa from Kaichou wa Maid-sama.
 - https://i.imgur.com/ewDf0ZS.gif: Siesta from Familiar of Zero.
 - https://i.imgur.com/z6sjRXh.gif: Maika Tsuchimikado from A Certain Magical Index.
-- https://i.imgur.com/RJCx1rX.gif: Also Mori from "GJ-bu".
+- https://i.imgur.com/g6uPz0v.gif: Sun Seto from Seto no Hanayome.
+- https://i.imgur.com/swxzqBI.gif: The main cast of Hinako Note.
+- https://i.imgur.com/ESBg2pr.gif: Aqua from Konosuba.
+- https://i.imgur.com/0axpToa.gif: Hotori Arashiyama from And Yet the Town Revolves.
