@@ -7,10 +7,29 @@ const myID = "715582108600369253";
 const coolDownMins = 5;
 //base 5 mins
 
-const dizzyGIF = "https://i.imgur.com/spr5vSH.gif"; //shows on no spin
-const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif", "https://i.imgur.com/WxIrcsu.gif", "https://i.imgur.com/2zr3Y66.gif", "https://i.imgur.com/rvdiMVi.gif", "https://i.imgur.com/ewDf0ZS.gif", "https://i.imgur.com/z6sjRXh.gif", "https://i.imgur.com/RJCx1rX.gif"];
-//[mori, maria, shinobu, misaki, siesta, maika, bikiniMori]
-// 0     1      2        3       4       5      6
+//lowest and highest index GIF for each spinType 
+const GIFlow =  [0, 7, 11, 12];
+const GIFhigh = [6, 10, 11, 12];
+//0: 0,1,2,3,4,5,6
+//1: 7,8,9,10
+//2: 11
+//3: 12
+
+//GIF DB
+const dizzyGIF = "https://i.imgur.com/spr5vSH.gif";     //shows on no spin
+const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to stay a common spin)
+"https://i.imgur.com/7hqhB0M.gif",                      //1 mori
+"https://i.imgur.com/7hqhB0M.gif",                      //2 mori
+"https://i.imgur.com/WxIrcsu.gif",                      //3 maria
+"https://i.imgur.com/2zr3Y66.gif",                      //4 shinobu
+"https://i.imgur.com/rvdiMVi.gif",                      //5 misaki
+"https://i.imgur.com/g6uPz0v.gif",                      //6 sun
+"https://i.imgur.com/swxzqBI.gif",                       //7 hinako
+"https://i.imgur.com/ewDf0ZS.gif",                       //8 siesta
+"https://i.imgur.com/ESBg2pr.gif",                       //9 aqua
+"https://i.imgur.com/0axpToa.gif",                       //10 hotori mug
+"https://i.imgur.com/z6sjRXh.gif",                      //11 maika
+"https://i.imgur.com/RJCx1rX.gif"];                      //12 bikini mori
 
 //on startup
 client.on('ready', () => {
@@ -43,21 +62,23 @@ function printSpin(msg, spins, total, spinType) {
     msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
     
     //if x2
-    if (spinType == 3 || spinType == 4) {
+    if (spinType == 1) {
         msg.channel.send("The maids span extra fast today! *(x2 spins)*");
     }
 
     //if x5
-    if (spinType == 5) {
+    if (spinType == 2) {
         msg.channel.send("We brought the maid-spinomatic out for this one! *(x5 spins)*");
     }
 
     //if x10
-    if (spinType == 6) {
+    if (spinType == 3) {
         msg.channel.send("Wow! Today is the beach episode! *(x10 spins)*");
     }
 
-    msg.channel.send(maidGIFs[spinType]);
+    GIFran = Math.floor(Math.random() * (GIFhigh[spinType] - GIFlow[spinType] + 1)) + GIFlow[spinType];
+
+    msg.channel.send(maidGIFs[GIFran]);
 }
 
 function updateCount(msg) {
@@ -86,40 +107,19 @@ function updateCount(msg) {
 
         //calc special rolls
         spinType = 0;
-        ran = Math.floor(Math.random() * 100); //ran = 0-99
-        if (ran > 35) { //36% chance
-            if (ran > 55) { // 20% chance
-                if (ran > 75) { // 20% chance
-                    if (ran > 85) { // 10% chance
-                        if (ran > 90) { // 7% chance
-                            if (ran > 97) { // 2% chance
-                                //bikinimori x10
-                                spinType = 6;
-                                amount = amount * 10;
-                            } else {
-                                //maika x5
-                                spinType = 5;
-                                amount = amount * 5;
-                            }
-                        } else {
-                            //siesta x2
-                            spinType = 4;
-                            amount = amount * 2;
-                        }
-                    } else {
-                        //misaki x2
-                        spinType = 3;
-                        amount = amount * 2;
-                    }
-                } else {
-                    //shinobu
-                    spinType = 2;
-                }
-            } else {
-                //maria
-                spinType = 1;
-            }
-        } //else mori
+        ran = Math.floor(Math.random() * 100) + 1; //ran = 1-100
+        if (ran > 98) { //99-100, 10x
+            spinType = 3;
+            amount = amount * 10;
+        } else if (ran > 90) { //91-98, 5x
+            spinType = 2;
+            amount = amount * 5;
+        } else if (ran > 70) { //71-90, 2x
+            spinType = 1;
+            amount = amount * 2;
+        } else { //1-75, 1x
+            spinType = 0;
+        }
 
         spinKA = true;
         if (newUser) { //create new user entry
