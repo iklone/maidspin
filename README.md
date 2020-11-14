@@ -4,7 +4,7 @@ A bot for Discord that lets you spin maids.
 
 ![Maid Spinning](https://i.imgur.com/WxIrcsu.gif)
  
-The most revolutionary discord game ever created!
+**The most *revolutionary* discord game ever created!**
 
 ### Rules:
 - To spin a maid simply command her to spin by saying *"Spin the maid!"* or something similar into the chat.
