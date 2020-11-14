@@ -53,7 +53,7 @@ client.on('ready', () => {
     });
 });
 
-function printSpin(msg, spins, total, spinType) {
+function printSpin(msg, spins, total, spinType, hiSpinKA) {
     if (spins == 1) {
         nounVar = "maid";
     } else {
@@ -65,15 +65,17 @@ function printSpin(msg, spins, total, spinType) {
     if (spinType == 1) {
         msg.channel.send("The maids span extra fast today! *(x2 spins)*");
     }
-
     //if x5
     if (spinType == 2) {
         msg.channel.send("We brought the maid-spinomatic out for this one! *(x5 spins)*");
     }
-
     //if x10
     if (spinType == 3) {
         msg.channel.send("Wow! Today is the beach episode! *(x10 spins)*");
+    }
+
+    if (hiSpinKA) {
+        msg.channel.send('This is a new highest spin score for you! (Check leaderboard with *"**@Maid Spin** toph"*).');
     }
 
     GIFran = Math.floor(Math.random() * (GIFhigh[spinType] - GIFlow[spinType] + 1)) + GIFlow[spinType];
@@ -102,7 +104,6 @@ function updateCount(msg) {
         oldTime = new Date(spinData["lastSpin"]);
         currentTime = new Date();
         elapsedMins = Math.floor((currentTime - oldTime) / 60000);
-
         amount = (elapsedMins - coolDownMins) + 1;
 
         //calc special rolls
@@ -121,7 +122,9 @@ function updateCount(msg) {
             spinType = 0;
         }
 
+        //update data
         spinKA = true;
+        hiSpinKA = false;
         if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
@@ -129,6 +132,7 @@ function updateCount(msg) {
 
             amount = 1; //only 1 for first free spin
             newUserObj.spins = amount;
+            newUserObj.hiSpin = amount;
 
             spinData["users"].push(newUserObj);
             msg.channel.send("Free spin for new user!");
@@ -139,13 +143,20 @@ function updateCount(msg) {
             if (elapsedMins >= coolDownMins) { //cooldown over, spin
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
+                
+                //update hispin if higher than current top
+                if (!(olduser.hasOwnProperty("hiSpin") && amount <= olduser.hiSpin)) {
+                    hiSpinKA = true;
+                    olduser.hiSpin = amount;
+                }
+
                 console.log(`${olduser.name}` + " spun " + amount + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ". (" + `${olduser.spins}` + " spins total) ran = " + ran);
 
                 total = olduser.spins;
             } else { //cooldown not over, no spin
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
-		console.log(`${olduser.name}` + " attempted to spin at " + currentTime.getHours() + ":" + currentTime.getMinutes());
+		        console.log(`${olduser.name}` + " attempted to spin at " + currentTime.getHours() + ":" + currentTime.getMinutes());
                 msg.channel.send(dizzyGIF);
             }
         }
@@ -158,7 +169,7 @@ function updateCount(msg) {
                     return console.error(err);
                 }
             });
-            printSpin(msg, amount, total, spinType);
+            printSpin(msg, amount, total, spinType, hiSpinKA);
         }
     });
 }
@@ -183,7 +194,8 @@ function spinHelp(msg) {
     'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
     'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
     'To view how many maids another user has spun, use *"**@Maid Spin** **@username**"*.\n' +
-    'To view who has spun the most maids, use *"**@Maid Spin** top"*.');
+    'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
+    'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.');
 }
 
 //check a user's spin count
@@ -212,7 +224,31 @@ function spinCheck(msg, atID) {
     });
 }
 
-//display leader board
+//display hispin leader board
+function topHiSpins(msg) {
+    fs.readFile('spinData.json', function(err, data) {
+        if (err) {
+            return console.error(err);
+        }
+
+        var spinData = JSON.parse(data.toString());
+
+        spinData["users"].sort((a, b) => b.hiSpin - a.hiSpin);
+
+        topstring = "***Highest One-Time Spin:***";
+        rank = 0;
+        for (user in spinData["users"]) {
+            if (spinData["users"][user].hasOwnProperty("hiSpin")) { //only include those with hispin property
+                rank = rank + 1;
+                topstring = topstring + "\n#" + rank + " : **" + spinData["users"][user]["name"] + "** (" + spinData["users"][user]["hiSpin"] + " spin)";
+            }
+        }
+
+        msg.channel.send(topstring);
+    });
+}
+
+//display basic leader board
 function topSpins(msg) {
     fs.readFile('spinData.json', function(err, data) {
         if (err) {
@@ -296,7 +332,20 @@ client.on('message', msg => {
             topRegex = new RegExp(/.*(top|high|leader|score|board|ladder).*/i);
             if (n && topRegex.test(trueContent)) {
                 n = false;
-                topSpins(msg);
+                topn = true;
+
+                 //test for leaderboard type
+                //top hispin
+                tophRegex = new RegExp(/.*(toph|top-h|top h).*/i);
+                if (topn && tophRegex.test(trueContent)) {
+                    topn = false;
+                    topHiSpins(msg);
+                }
+
+                //else go basic leaderboard
+                if (topn) {
+                    topSpins(msg);
+                }
             }
 
             //test for timer
