@@ -232,16 +232,21 @@ function topHiSpins(msg) {
         }
 
         var spinData = JSON.parse(data.toString());
+        var parsedData = [];
 
-        spinData["users"].sort((a, b) => b.hiSpin - a.hiSpin);
+        for (user in spinData["users"]) {
+            if (spinData["users"][user].hasOwnProperty("hiSpin")) { //only include those with hispin property
+                parsedData.push(spinData["users"][user]);
+            }
+        }
+
+        parsedData.sort((a, b) => b.hiSpin - a.hiSpin);
 
         topstring = "***Highest One-Time Spin:***";
         rank = 0;
-        for (user in spinData["users"]) {
-            if (spinData["users"][user].hasOwnProperty("hiSpin")) { //only include those with hispin property
-                rank = rank + 1;
-                topstring = topstring + "\n#" + rank + " : **" + spinData["users"][user]["name"] + "** (" + spinData["users"][user]["hiSpin"] + " spin)";
-            }
+        for (user in parsedData) {
+            rank = rank + 1;
+            topstring = topstring + "\n#" + rank + " : **" + parsedData[user]["name"] + "** (" + parsedData[user]["hiSpin"] + " spin)";
         }
 
         msg.channel.send(topstring);
