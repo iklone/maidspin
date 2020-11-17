@@ -6,6 +6,10 @@ A bot for Discord that lets you spin maids.
  
 **The most *revolutionary* discord game ever created!**
 
+You can either add the public instance to your server [here](https://discord.com/oauth2/authorize?client_id=715582108600369253&scope=bot), or see below on how to set-up your own instance.
+
+*The bot requires the **embed links** permission to work.*
+
 ### Rules:
 - To spin a maid simply command her to spin by saying *"Spin the maid!"* or something similar into the chat.
 - The maids can only spin every 5 mins, they get dizzy!
