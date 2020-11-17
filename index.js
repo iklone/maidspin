@@ -244,7 +244,6 @@ function spinHelp(msg) {
     'The maids can only spin every **' + coolDownMins + " mins**, they get dizzy!\n" +
     'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
     'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
-    'To view how many maids another user has spun, use *"**@Maid Spin** **@username**"*.\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
     'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.');
 }
