@@ -24,6 +24,7 @@ A bot for Discord that lets you spin maids.
 - In password.config, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
 - Install the discord.js module with npm (npm install discord.js).
 - Invite the bot to your server by going to "https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot", replacing CLIENT_ID with your application's client ID.
+- The bot requires a few permissions to function. It must be able to: **view/send messages** in at least one channel and **embed links**.
 - Run the application with "node index.js".
 
 ### GIF Sources:
