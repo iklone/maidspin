@@ -40,11 +40,14 @@ client.on('ready', () => {
             return console.error(err);
         }
 
-        var spinData = JSON.parse(data.toString());
+        var fullData = JSON.parse(data.toString());
         currentTime = new Date();
-        spinData["lastSpin"] = currentTime - (60000 * coolDownMins);
 
-        newJSON = JSON.stringify(spinData);
+        for (server in fullData["servers"]) {
+            fullData["servers"][server]["lastSpin"] = currentTime - (60000 * coolDownMins);
+        }
+
+        newJSON = JSON.stringify(fullData);
         fs.writeFile('spinData.json', newJSON, function(err) {
             if (err) {
                 return console.error(err);
@@ -52,6 +55,27 @@ client.on('ready', () => {
         });
     });
 });
+
+function getServerData(data, msg) {
+    var fullData = JSON.parse(data.toString());
+
+    newServer = true;
+    //test for new server
+    for (server in fullData["servers"]) {
+        if (fullData["servers"][server]["id"] == msg.guild.id) {
+            spinData = fullData["servers"][server];
+            newServer = false;
+            break;
+        }
+    }
+
+    //if new server, return -1
+    if (newServer) {
+        spinData = -1;
+    }
+
+    return spinData;
+}
 
 function printSpin(msg, spins, total, spinType, hiSpinKA) {
     if (spins == 1) {
@@ -89,8 +113,35 @@ function updateCount(msg) {
             return console.error(err);
         }
 
-        var spinData = JSON.parse(data.toString());
+        //get server data
+        var fullData = JSON.parse(data.toString());
 
+        //find current server
+        newServer = true;
+        while (newServer) {
+            //test for new server
+            for (server in fullData["servers"]) {
+                if (fullData["servers"][server]["id"] == msg.guild.id) {
+                    spinData = fullData["servers"][server];
+                    newServer = false;
+                    break;
+                }
+            }
+
+            //if new server, create tag
+            if (newServer) {
+                var newServerObj = new Object();
+                newServerObj.id = msg.guild.id;
+
+                currentTime = new Date();
+                newServerObj.lastSpin = currentTime - (60000 * coolDownMins);
+                newServerObj.users = [];
+
+                fullData["servers"].push(newServerObj);
+            }
+        }
+
+        //test for new user in server
         newUser = true;
         for (user in spinData["users"]) {
             if (spinData["users"][user]["id"] == msg.author.id) {
@@ -163,7 +214,7 @@ function updateCount(msg) {
 
         //if spinKA is still true, save spin details and post spin
         if (spinKA) {
-            newJSON = JSON.stringify(spinData);
+            newJSON = JSON.stringify(fullData);
             fs.writeFile('spinData.json', newJSON, function(err) {
                 if (err) {
                     return console.error(err);
@@ -198,32 +249,6 @@ function spinHelp(msg) {
     'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.');
 }
 
-//check a user's spin count
-function spinCheck(msg, atID) {
-    fs.readFile('spinData.json', function(err, data) {
-        if (err) {
-            return console.error(err);
-        }
-
-        var spinData = JSON.parse(data.toString());
-
-        newUser = true;
-        for (user in spinData["users"]) {
-            if (spinData["users"][user]["id"] == atID) {
-                spins = spinData["users"][user]["spins"];
-                newUser = false;
-                break;
-            }
-        }
-
-        if (newUser) { //if no spin user
-            msg.channel.send("<@!" + atID + "> has never spun the maid.");
-        } else { //if spin user
-            msg.channel.send("<@!" + atID + "> has spun the maid " + spins + " times.");
-        }
-    });
-}
-
 //display hispin leader board
 function topHiSpins(msg) {
     fs.readFile('spinData.json', function(err, data) {
@@ -231,7 +256,13 @@ function topHiSpins(msg) {
             return console.error(err);
         }
 
-        var spinData = JSON.parse(data.toString());
+        //get server data
+        var spinData = getServerData(data, msg);
+        if (spinData == -1) { //on no server entry
+            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
+            return;
+        }
+        
         var parsedData = [];
 
         for (user in spinData["users"]) {
@@ -260,7 +291,12 @@ function topSpins(msg) {
             return console.error(err);
         }
 
-        var spinData = JSON.parse(data.toString());
+        //get server data
+        var spinData = getServerData(data, msg);
+        if (spinData == -1) { //on no server entry
+            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
+            return;
+        }
 
         spinData["users"].sort((a, b) => b.spins - a.spins);
 
@@ -281,7 +317,14 @@ function timerUp(msg) {
             return console.error(err);
         }
 
-        var spinData = JSON.parse(data.toString());
+        //get server data
+        var spinData = getServerData(data, msg);
+        if (spinData == -1) { //on no server entry
+            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
+            return;
+        }
+
+        //get timings
         currentTime = new Date();
         lastSpin = new Date(spinData["lastSpin"]);
 
@@ -314,42 +357,32 @@ client.on('message', msg => {
         //console.log(msg);
         n = true;
 
+        //if in DM then cancel and log
+        if (msg.guild === null) {
+            msg.channel.send("Maid Spin cannot be played in DMs. You cheater.");
+            console.log(`${msg.author.username}` + " attempted to cheat.");
+            n = false;
+        }
+
         //if @bot then command
         if (n && msg.mentions.users.array().length > 0 && msg.mentions.users.array()[0]["id"] == myID) {
             trueContent = msg.content;
             console.log(trueContent);
 
-            //if contains another @, view spin count
-            if (n && msg.mentions.users.array().length > 1) {
-                n = false;
-
-                atID = msg.mentions.users.array()[1]["id"];
-
-                //if @ed the bot itself, else send to spin check func
-                if (atID == myID) {
-                    msg.channel.send("<@!" + myID + "> has spun the maid :infinity: times.");
-                } else {
-                    spinCheck(msg, atID);
-                }
-            }
-
             //test for leaderboard
             topRegex = new RegExp(/.*(top|high|leader|score|board|ladder).*/i);
             if (n && topRegex.test(trueContent)) {
-                n = false;
-                topn = true;
-
-                 //test for leaderboard type
                 //top hispin
                 tophRegex = new RegExp(/.*(toph|top-h|top h).*/i);
-                if (topn && tophRegex.test(trueContent)) {
-                    topn = false;
+                if (n && tophRegex.test(trueContent)) {
+                    n = false;
                     topHiSpins(msg);
                 }
 
                 //else go basic leaderboard
-                if (topn) {
+                if (n) {
                     topSpins(msg);
+                    n = false;
                 }
             }
 
@@ -369,16 +402,18 @@ client.on('message', msg => {
             if (n) {
                 spinHelp(msg);
             }
-        } else {
-            //spin
-            spinTest(msg);
-
-	    //test for leaderboard
-            jojoRegex = new RegExp(/.*(jojo).*/i);
-            if (n && jojoRegex.test(msg.content)) {
-                msg.channel.send("Jojo is bad.");
-            }
         }
+
+        //spin
+        if (n) {
+            spinTest(msg);
+        }
+
+        jojoRegex = new RegExp(/.*(jojo).*/i);
+        if (n && jojoRegex.test(msg.content)) {
+            msg.channel.send("Jojo is bad.");
+        }
+
     }
 });
 
