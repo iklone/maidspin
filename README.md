@@ -15,8 +15,8 @@ A bot for Discord that lets you spin maids.
 ### Commands:
 - View help with *"**@Maid Spin** help"*.
 - You can check on the maids' dizziness in more detail using *"**@Maid Spin** timer"*.
-- To view how many maids another user has spun, use *"**@Maid Spin** **@username**"*.
 - To view who has spun the most maids, use *"**@Maid Spin** top"*.
+- To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.
 
 ### Set Up:
 - To set up your own instance of this bot, first create a Discord application and bot on "https://discord.com/developers/applications".
