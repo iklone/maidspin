@@ -31,6 +31,10 @@ const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to
 "https://i.imgur.com/z6sjRXh.gif",                      //11 maika
 "https://i.imgur.com/RJCx1rX.gif"];                      //12 bikini mori
 
+//spin regex
+const maidWords = "maid|meid|mori|mahoro|made|maria";
+const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral|whirl|reel|pirouet|oscill";
+
 //on startup
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -230,7 +234,8 @@ function spin(msg) {
 }
 
 function spinTest(msg) {
-    spinRegex = new RegExp(/.*(((spin|twirl|rotat|turn|twist|gyrat|spun|span|revol).*(mahoro|made|maid|meid|mori))|((mahoro|made|maid|meid|mori).*(spin|twirl|rotat|turn|twist|gyrat|spun|span|revol))).*/i);
+    regexString = ".*(((" + spinWords + ").*(" + maidWords + "))|((" + maidWords + ").*(" + spinWords + "))).*";
+    spinRegex = new RegExp(regexString, "i");
     if (spinRegex.test(msg.content)) {
         spin(msg);
     }
