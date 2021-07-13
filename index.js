@@ -32,8 +32,8 @@ const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to
 "https://i.imgur.com/RJCx1rX.gif"];                      //12 bikini mori
 
 //spin regex
-const maidWords = "maid|meid|mori|mahoro|made|maria";
-const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral|whirl|reel|pirouet|oscill";
+const maidWords = "maid|meid|mori|mahoro|made|maria|tohru";
+const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral|whirl|reel|pirouet|oscill|mawar";
 
 //on startup
 client.on('ready', () => {
@@ -250,7 +250,8 @@ function spinHelp(msg) {
     'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
     'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
-    'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.');
+    'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.\n' +
+    '*Bot built and maintained by iklone: http://iklone.org*');
 }
 
 //display hispin leader board
