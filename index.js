@@ -250,8 +250,8 @@ function spinHelp(msg) {
     'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
     'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
-    'To view who had the most powerful maid spin, use *"**@Maid Spin** toph"*.\n' +
-    '*Bot built and maintained by iklone: http://iklone.org*');
+    'To view who had the strongest maid spin, use *"**@Maid Spin** tops"*.\n' +
+    '*Bot built and maintained by **iklone**: http://iklone.org*');
 }
 
 //display hispin leader board
@@ -378,7 +378,7 @@ client.on('message', msg => {
             topRegex = new RegExp(/.*(top|high|leader|score|board|ladder).*/i);
             if (n && topRegex.test(trueContent)) {
                 //top hispin
-                tophRegex = new RegExp(/.*(toph|top-h|top h).*/i);
+                tophRegex = new RegExp(/.*(toph|top-h|top h|tops|top-s|top s).*/i);
                 if (n && tophRegex.test(trueContent)) {
                     n = false;
                     topHiSpins(msg);
@@ -415,7 +415,7 @@ client.on('message', msg => {
         }
 
         jojoRegex = new RegExp(/.*(jojo).*/i);
-        if (n && jojoRegex.test(msg.content)) {
+        if (jojoRegex.test(msg.content)) {
             msg.channel.send("Jojo is bad.");
         }
 
