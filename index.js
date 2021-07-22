@@ -87,7 +87,7 @@ function getGIF(GIFDB) {
     return GIFDB[selectedGIF];
 }
 
-function printSpin(msg, spins, total, spinType, hiSpinKA) {
+function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA) {
     //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
@@ -129,6 +129,11 @@ function printSpin(msg, spins, total, spinType, hiSpinKA) {
         msg.channel.send(multiMessage);
     }
 
+    //if newCall then send hispin message
+    if (newCallKA) {
+        msg.channel.send('No one has ever used that call before! *(x1½ spins)*');
+    }
+
     //if hispin then send hispin message
     if (hiSpinKA) {
         msg.channel.send('This is a new highest spin score for you! (Check leaderboard with *"**@Maid Spin** toph"*).');
@@ -136,6 +141,59 @@ function printSpin(msg, spins, total, spinType, hiSpinKA) {
 
     //send GIF
     msg.channel.send(getGIF(gif));
+}
+
+//test if call is new on current server
+function testNewCall(msg) {
+    data = fs.readFileSync('callData.json');
+    //get server data
+    var fullData = JSON.parse(data.toString());
+
+    //find current server
+    newServer = true;
+    while (newServer) {
+        //test for new server
+        for (server in fullData["servers"]) {
+            if (fullData["servers"][server]["id"] == msg.guild.id) {
+                callData = fullData["servers"][server];
+                newServer = false;
+                break;
+            }
+        }
+
+        //if new server, create tag
+        if (newServer) {
+            var newServerObj = new Object();
+            newServerObj.id = msg.guild.id;
+
+            newServerObj.calls = [];
+
+            fullData["servers"].push(newServerObj);
+        }
+    }
+
+    //loop through calls to find duplicates
+    newCallKA = true;
+    currentCall = msg.content;
+    for (call in callData["calls"]) {
+        if (callData["calls"][call] == currentCall) {
+            newCallKA = false;
+            break;
+        }
+    }
+
+    //if new then append to file
+    if (newCallKA) {
+        callData["calls"].push(currentCall);
+        newJSON = JSON.stringify(fullData);
+        fs.writeFile('callData.json', newJSON, function(err) {
+            if (err) {
+                return console.error(err);
+            }
+        });
+    }
+
+    return newCallKA;
 }
 
 function updateCount(msg) {
@@ -188,27 +246,10 @@ function updateCount(msg) {
         elapsedMins = Math.floor((currentTime - oldTime) / 60000);
         amount = (elapsedMins - coolDownMins) + 1;
 
-        //calc roll multiplier
-        spinType = 0;
-        ran = Math.floor(Math.random() * 100) + 1; //ran = 1-100
-        if (ran > 99) {         //100   25x
-            spinType = 25;
-        } else if (ran > 96) {  //97-99 10x
-            spinType = 10;
-        } else if (ran > 90) {  //91-96 5x
-            spinType = 5;
-        } else if (ran > 77) {  //78-91 3x
-            spinType = 3;
-        } else if (ran > 57) {  //58-77 2x
-            spinType = 2;
-        } else {                //1-57  1x
-            spinType = 1;
-        }
-        amount = amount * spinType;
-
         //update data
         spinKA = true;
         hiSpinKA = false;
+        newCallKA = false;
         if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
@@ -224,7 +265,31 @@ function updateCount(msg) {
 
             total = newUserObj.spins;
         } else { //old user, check for timeout
-            if (elapsedMins >= coolDownMins) { //cooldown over, spin
+            if (elapsedMins >= coolDownMins) { //cooldown over, SPIN
+                //calc roll multiplier
+                spinType = 0;
+                ran = Math.floor(Math.random() * 100) + 1; //ran = 1-100
+                if (ran > 99) {         //100   25x
+                    spinType = 25;
+                } else if (ran > 96) {  //97-99 10x
+                    spinType = 10;
+                } else if (ran > 90) {  //91-96 5x
+                    spinType = 5;
+                } else if (ran > 77) {  //78-91 3x
+                    spinType = 3;
+                } else if (ran > 57) {  //58-77 2x
+                    spinType = 2;
+                } else {                //1-57  1x
+                    spinType = 1;
+                }
+                amount = amount * spinType;
+
+                //test for new call
+                if (testNewCall(msg)) {
+                    amount = Math.ceil(amount * 1.5);
+                    newCallKA = true;
+                }
+
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
                 
@@ -253,7 +318,7 @@ function updateCount(msg) {
                     return console.error(err);
                 }
             });
-            printSpin(msg, amount, total, spinType, hiSpinKA);
+            printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA);
         }
     });
 }
