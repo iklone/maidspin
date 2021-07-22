@@ -4,20 +4,20 @@ var fs = require('fs');
 const client = new Discord.Client();
 const myID = "776090583362043906";
 
-const coolDownMins = 5;
+const coolDownMins = 0;
 //base 5 mins
 
-//lowest and highest index GIF for each spinType 
-const GIFlow =  [0, 7, 11, 12];
-const GIFhigh = [6, 10, 11, 12];
-//0: 0,1,2,3,4,5,6
-//1: 7,8,9,10
-//2: 11
-//3: 12
-
 //GIF DB
-const dizzyGIF = "https://i.imgur.com/spr5vSH.gif";     //shows on no spin
-const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to stay a common spin)
+const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif"];   //shows on no spin
+const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif",       //mori
+"https://i.imgur.com/0axpToa.gif"];                     //hotori mug
+const GIFx2 = ["https://i.imgur.com/WxIrcsu.gif"];      //maria
+const GIFx3 = ["https://i.imgur.com/rvdiMVi.gif"];      //misaki
+const GIFx5 = ["https://i.imgur.com/z6sjRXh.gif"];      //maika
+const GIFx10 = ["https://i.imgur.com/swxzqBI.gif"];     //hinako
+const GIFx25 = ["https://i.imgur.com/RJCx1rX.gif"];     //bikini mori
+
+const GIFold = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to stay a common spin)
 "https://i.imgur.com/7hqhB0M.gif",                      //1 mori
 "https://i.imgur.com/7hqhB0M.gif",                      //2 mori
 "https://i.imgur.com/WxIrcsu.gif",                      //3 maria
@@ -32,8 +32,8 @@ const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to
 "https://i.imgur.com/RJCx1rX.gif"];                     //12 bikini mori
 
 //spin regex
-const maidWords = "maid|meid|mori|mahoro|made|maria|tohru";
-const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral|whirl|reel|pirouet|oscill|mawar";
+const maidWords = "maid|meid|mori|mahoro|maria|tohru";
+const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral|whir|reel|pirouet|oscil|mawar";
 
 //on startup
 client.on('ready', () => {
@@ -81,34 +81,61 @@ function getServerData(data, msg) {
     return spinData;
 }
 
+function getGIF(GIFDB) {
+    selectedGIF = Math.floor(Math.random() * GIFDB.length); //0 - DB.len
+
+    return GIFDB[selectedGIF];
+}
+
 function printSpin(msg, spins, total, spinType, hiSpinKA) {
+    //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
     } else {
         nounVar = "maids";
     }
+
+    //send base message
     msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
-    
-    //if x2
-    if (spinType == 1) {
-        msg.channel.send("The maids span extra fast today! *(x2 spins)*");
-    }
-    //if x5
-    if (spinType == 2) {
-        msg.channel.send("We brought the maid-spinomatic out for this one! *(x5 spins)*");
-    }
-    //if x10
-    if (spinType == 3) {
-        msg.channel.send("Wow! Today is the beach episode! *(x10 spins)*");
+
+    //select multiplier message
+    switch(spinType) {
+        case 2:
+            multiMessage = "The maids span extra fast today! *(x2 spins)*";
+            gif = GIFx2;
+            break;
+        case 3:
+            multiMessage = "The maids span extra-extra fast today! *(x3 spins)*";
+            gif = GIFx3;
+            break;
+        case 5:
+            multiMessage = "We brought the maid-spinomatic out for this one! *(x5 spins)*";
+            gif = GIFx5;
+            break;
+        case 10:
+            multiMessage = "Supersonic spinning! *(x10 spins)*";
+            gif = GIFx10;
+            break;
+        case 25:
+            multiMessage = "Wow! Today is the beach episode! *(x25 spins)*";
+            gif = GIFx25;
+            break;
+        default:
+            gif = GIFx1;
     }
 
+    //send multiplier message
+    if (spinType > 1) {
+        msg.channel.send(multiMessage);
+    }
+
+    //if hispin then send hispin message
     if (hiSpinKA) {
         msg.channel.send('This is a new highest spin score for you! (Check leaderboard with *"**@Maid Spin** toph"*).');
     }
 
-    GIFran = Math.floor(Math.random() * (GIFhigh[spinType] - GIFlow[spinType] + 1)) + GIFlow[spinType];
-
-    msg.channel.send(maidGIFs[GIFran]);
+    //send GIF
+    msg.channel.send(getGIF(gif));
 }
 
 function updateCount(msg) {
@@ -161,21 +188,23 @@ function updateCount(msg) {
         elapsedMins = Math.floor((currentTime - oldTime) / 60000);
         amount = (elapsedMins - coolDownMins) + 1;
 
-        //calc special rolls
+        //calc roll multiplier
         spinType = 0;
         ran = Math.floor(Math.random() * 100) + 1; //ran = 1-100
-        if (ran > 98) { //99-100, 10x
+        if (ran > 99) {         //100   25x
+            spinType = 25;
+        } else if (ran > 96) {  //97-99 10x
+            spinType = 10;
+        } else if (ran > 90) {  //91-96 5x
+            spinType = 5;
+        } else if (ran > 77) {  //78-91 3x
             spinType = 3;
-            amount = amount * 10;
-        } else if (ran > 90) { //91-98, 5x
+        } else if (ran > 57) {  //58-77 2x
             spinType = 2;
-            amount = amount * 5;
-        } else if (ran > 70) { //71-90, 2x
+        } else {                //1-57  1x
             spinType = 1;
-            amount = amount * 2;
-        } else { //1-75, 1x
-            spinType = 0;
         }
+        amount = amount * spinType;
 
         //update data
         spinKA = true;
@@ -208,11 +237,11 @@ function updateCount(msg) {
                 console.log(`${olduser.name}` + " spun " + amount + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ". (" + `${olduser.spins}` + " spins total) ran = " + ran);
 
                 total = olduser.spins;
-            } else { //cooldown not over, no spin
+            } else { //cooldown not over, no spin, dizzy
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
 		        console.log(`${olduser.name}` + " attempted to spin at " + currentTime.getHours() + ":" + currentTime.getMinutes());
-                msg.channel.send(dizzyGIF);
+                msg.channel.send(getGIF(GIFdizzy));
             }
         }
 
