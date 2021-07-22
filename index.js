@@ -8,9 +8,10 @@ const coolDownMins = 0;
 //base 5 mins
 
 //GIF DB
-const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif"];   //shows on no spin
-const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif",       //mori
-"https://i.imgur.com/0axpToa.gif"];                     //hotori mug
+const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif",    //chiyo dizzy
+"https://i.imgur.com/6K8xuk1.gif"];                     //minawa dizzy
+const GIFfirst = ["https://i.imgur.com/kBwlzG5.gif"];   //tohru nerd
+const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif"];      //mori
 const GIFx2 = ["https://i.imgur.com/WxIrcsu.gif"];      //maria
 const GIFx3 = ["https://i.imgur.com/rvdiMVi.gif"];      //misaki
 const GIFx5 = ["https://i.imgur.com/z6sjRXh.gif"];      //maika
@@ -87,7 +88,7 @@ function getGIF(GIFDB) {
     return GIFDB[selectedGIF];
 }
 
-function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA) {
+function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay) {
     //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
@@ -122,6 +123,12 @@ function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA) {
             break;
         default:
             gif = GIFx1;
+    }
+
+    //firstOfTheDay handling
+    if (firstOfTheDay) {
+        msg.channel.send("You got the first spin of the day! Well done. *(+100 free spins)*");
+        gif = GIFfirst;
     }
 
     //send multiplier message
@@ -196,6 +203,7 @@ function testNewCall(msg) {
     return newCallKA;
 }
 
+//calculate spins and update data files
 function updateCount(msg) {
     fs.readFile('spinData.json', function(err, data) {
         if (err) {
@@ -250,6 +258,7 @@ function updateCount(msg) {
         spinKA = true;
         hiSpinKA = false;
         newCallKA = false;
+        firstOfTheDay = false;
         if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
@@ -266,6 +275,13 @@ function updateCount(msg) {
             total = newUserObj.spins;
         } else { //old user, check for timeout
             if (elapsedMins >= coolDownMins) { //cooldown over, SPIN
+                
+                //check for firstOfTheDay
+                if (oldTime.getDate() != currentTime.getDate()) {
+                    firstOfTheDay = true;
+                    amount = amount + 100;
+                }
+
                 //calc roll multiplier
                 spinType = 0;
                 ran = Math.floor(Math.random() * 100) + 1; //ran = 1-100
@@ -318,7 +334,7 @@ function updateCount(msg) {
                     return console.error(err);
                 }
             });
-            printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA);
+            printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay);
         }
     });
 }
@@ -470,10 +486,10 @@ client.on('message', msg => {
             console.log(trueContent);
 
             //test for leaderboard
-            topRegex = new RegExp(/.*(top|high|leader|score|board|ladder).*/i);
+            topRegex = new RegExp(/.*top.*/i);
             if (n && topRegex.test(trueContent)) {
                 //top hispin
-                tophRegex = new RegExp(/.*(toph|top-h|top h|tops|top-s|top s).*/i);
+                tophRegex = new RegExp(/.*(tops|top-s|top s).*/i);
                 if (n && tophRegex.test(trueContent)) {
                     n = false;
                     topHiSpins(msg);
