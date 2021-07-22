@@ -459,6 +459,7 @@ client.on('message', msg => {
         //if in DM then cancel and log
         if (msg.guild === null) {
             msg.channel.send("Maid Spin cannot be played in DMs. You cheater.");
+            msg.channel.send("https://i.imgur.com/rjm5m8y.jpg");
             console.log(`${msg.author.username}` + " attempted to cheat.");
             n = false;
         }
