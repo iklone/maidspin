@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 var fs = require('fs');
 
 const client = new Discord.Client();
-const myID = "715582108600369253";
+const myID = "776090583362043906";
 
 const coolDownMins = 5;
 //base 5 mins
@@ -24,12 +24,12 @@ const maidGIFs = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to
 "https://i.imgur.com/2zr3Y66.gif",                      //4 shinobu
 "https://i.imgur.com/rvdiMVi.gif",                      //5 misaki
 "https://i.imgur.com/g6uPz0v.gif",                      //6 sun
-"https://i.imgur.com/swxzqBI.gif",                       //7 hinako
-"https://i.imgur.com/ewDf0ZS.gif",                       //8 siesta
-"https://i.imgur.com/ESBg2pr.gif",                       //9 aqua
-"https://i.imgur.com/0axpToa.gif",                       //10 hotori mug
+"https://i.imgur.com/swxzqBI.gif",                      //7 hinako
+"https://i.imgur.com/ewDf0ZS.gif",                      //8 siesta
+"https://i.imgur.com/ESBg2pr.gif",                      //9 aqua
+"https://i.imgur.com/0axpToa.gif",                      //10 hotori mug
 "https://i.imgur.com/z6sjRXh.gif",                      //11 maika
-"https://i.imgur.com/RJCx1rX.gif"];                      //12 bikini mori
+"https://i.imgur.com/RJCx1rX.gif"];                     //12 bikini mori
 
 //spin regex
 const maidWords = "maid|meid|mori|mahoro|made|maria|tohru";
