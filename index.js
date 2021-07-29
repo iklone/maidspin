@@ -11,6 +11,7 @@ const coolDownMins = 0;
 const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif",    //chiyo dizzy
 "https://i.imgur.com/6K8xuk1.gif"];                     //minawa dizzy
 const GIFfirst = ["https://i.imgur.com/kBwlzG5.gif"];   //tohru nerd
+const GIFhearto = ["https://i.imgur.com/ks69ysE.gif"];  //mio
 const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif"];      //mori
 const GIFx2 = ["https://i.imgur.com/WxIrcsu.gif"];      //maria
 const GIFx3 = ["https://i.imgur.com/rvdiMVi.gif"];      //misaki
@@ -88,7 +89,7 @@ function getGIF(GIFDB) {
     return GIFDB[selectedGIF];
 }
 
-function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay) {
+function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA) {
     //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
@@ -144,6 +145,13 @@ function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheD
     //if hispin then send hispin message
     if (hiSpinKA) {
         msg.channel.send('This is a new highest spin score for you! (Check leaderboard with *"**@Maid Spin** toph"*).');
+    }
+
+    //if hearto notify
+    if (heartoKA) {
+        msg.channel.send("What's this? Your love for maids has manifested into a legendary **MEIDO NO HEARTO**!");
+        msg.channel.send('Check what uses you can do with it with *"**@Maid Spin** hearto"*');
+        gif = GIFhearto;
     }
 
     //send GIF
@@ -232,6 +240,7 @@ function updateCount(msg) {
 
                 currentTime = new Date();
                 newServerObj.lastSpin = currentTime - (60000 * coolDownMins);
+                newServerObj.hearto = Math.floor(Math.random() * 20) + 20; //ran 20-40
                 newServerObj.users = [];
 
                 fullData["servers"].push(newServerObj);
@@ -259,6 +268,7 @@ function updateCount(msg) {
         hiSpinKA = false;
         newCallKA = false;
         firstOfTheDay = false;
+        heartoKA = false;
         if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
@@ -267,10 +277,14 @@ function updateCount(msg) {
             amount = 1; //only 1 for first free spin
             newUserObj.spins = amount;
             newUserObj.hiSpin = amount;
+            newUserObj.hearto = 0;
 
             spinData["users"].push(newUserObj);
-            msg.channel.send("Free spin for new user!");
-            console.log("New user " + `${newUserObj.name}` + " spun the maid. (" + `${newUserObj.spins}` + " spins)");
+            console.log("New user " + `${newUserObj.name}` + " spun the maid. (" + `${newUserObj.spins}` + " spins).");
+            
+            msg.channel.send(`${msg.author}` + " spun a maid! (Free spin for new user)");
+            msg.channel.send("To read how to play use " + '*"**@Maid Spin** help"*.');
+            msg.channel.send("https://i.imgur.com/7hqhB0M.gif");
 
             total = newUserObj.spins;
         } else { //old user, check for timeout
@@ -315,13 +329,23 @@ function updateCount(msg) {
                     olduser.hiSpin = amount;
                 }
 
-                console.log(`${olduser.name}` + " spun " + amount + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ". (" + `${olduser.spins}` + " spins total) ran = " + ran);
-
+                console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + amount + " spins (ran=" + ran + ") for " + `${olduser.name}` + "(" + `${olduser.spins}` + " total)");
                 total = olduser.spins;
+
+                //check meido no hearto
+                spinData["hearto"] = spinData["hearto"] - 1;
+                if (spinData["hearto"] == 0) {
+                    heartoKA = true;
+                    spinData["hearto"] = Math.floor(Math.random() * 20) + 20; //ran 20-40
+                    olduser.hearto = olduser.hearto + 1;
+                    console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + `${olduser.name}` + "found a meido no hearto");
+                }
+
+                printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA);
             } else { //cooldown not over, no spin, dizzy
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
-		        console.log(`${olduser.name}` + " attempted to spin at " + currentTime.getHours() + ":" + currentTime.getMinutes());
+		        console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + `${olduser.name}` + " attempted to spin.");
                 msg.channel.send(getGIF(GIFdizzy));
             }
         }
@@ -334,7 +358,6 @@ function updateCount(msg) {
                     return console.error(err);
                 }
             });
-            printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay);
         }
     });
 }
@@ -465,6 +488,42 @@ function timerUp(msg) {
     });
 }
 
+function heartoCheck(msg) {
+    fs.readFile('spinData.json', function(err, data) {
+        if (err) {
+            return console.error(err);
+        }
+
+        //get server data
+        var spinData = getServerData(data, msg);
+        if (spinData == -1) { //on no server entry
+            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
+            return;
+        }
+
+        //test for new user in server
+        newUser = true;
+        for (user in spinData["users"]) {
+            if (spinData["users"][user]["id"] == msg.author.id) {
+                olduser = spinData["users"][user];
+                newUser = false;
+                break;
+            }
+        }
+
+        //if new user error
+        if (newUser) {
+            msg.channel.send("You haven't spun any maids yet." + 'View help with *"**@Maid Spin** help"*.');
+        } else {
+            msg.channel.send("You currently have **" + olduser["hearto"] + "** meido no hearto.");
+
+            /*msg.channel.send("Trade x1 for 250 spins with " + '*"**@Maid Spin** hearto spins"*\n' +
+            "Trade x3 to initiate *MAID DAY* with " + '*"**@Maid Spin** hearto maid day"*\n' +
+            "*(Maid Day is a 24 hour period where **all** spins will be multiplied by 2)*");*/
+        }
+    });
+}
+
 //on message
 client.on('message', msg => {
     //stop if msg by self
@@ -507,6 +566,13 @@ client.on('message', msg => {
             if (n && timerRegex.test(trueContent)) {
                 n = false;
                 timerUp(msg);
+            }
+
+            //test for hearto
+            heartoRegex = new RegExp(/.*(heart|kokoro|soul).*/i)
+            if (n && heartoRegex.test(trueContent)) {
+                n = false;
+                heartoCheck(msg);
             }
 
             //Else then try to spin
