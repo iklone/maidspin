@@ -7,6 +7,9 @@ const myID = "776090583362043906";
 const coolDownMins = 0;
 //base 5 mins
 
+//1 hearto = x spins
+const heartoExchangeRate = 250;
+
 //GIF DB
 const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif",    //chiyo dizzy
 "https://i.imgur.com/6K8xuk1.gif"];                     //minawa dizzy
@@ -62,9 +65,24 @@ client.on('ready', () => {
     });
 });
 
-function getServerData(data, msg) {
+//return fullData
+function getFullData(data) {
     var fullData = JSON.parse(data.toString());
+    return fullData;
+}
 
+//write fullData to spinData
+function writeData(fullData) {
+    newJSON = JSON.stringify(fullData);
+    fs.writeFile('spinData.json', newJSON, function(err) {
+        if (err) {
+            return console.error(err);
+        }
+    });
+}
+
+//return server data from msg's server
+function getServerData(fullData, msg, verboseKA) {
     newServer = true;
     //test for new server
     for (server in fullData["servers"]) {
@@ -75,12 +93,42 @@ function getServerData(data, msg) {
         }
     }
 
-    //if new server, return -1
+    //if new server, return 0
     if (newServer) {
-        spinData = -1;
+        spinData = 0;
+        if (verboseKA) {
+            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
+        }
     }
 
     return spinData;
+}
+
+//return user data from msg's user
+function getUserData(spinData, msg, verboseKA) {
+    //test for new user in server
+    newUser = true;
+    for (user in spinData["users"]) {
+        if (spinData["users"][user]["id"] == msg.author.id) {
+            olduser = spinData["users"][user];
+            newUser = false;
+            break;
+        }
+    }
+
+    //if new user return 0
+    if (newUser) {
+        if (verboseKA) {
+            msg.channel.send("You haven't spun any maids yet." + ' View help with *"**@Maid Spin** help"*.');
+        }
+        olduser = 0;
+    }
+
+    return olduser;
+}
+
+function writeToSpinData(data) {
+
 }
 
 function getGIF(GIFDB) {
@@ -89,7 +137,7 @@ function getGIF(GIFDB) {
     return GIFDB[selectedGIF];
 }
 
-function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA) {
+function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, maidDayElapsedHours, maidDayMulti) {
     //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
@@ -124,6 +172,17 @@ function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheD
             break;
         default:
             gif = GIFx1;
+    }
+
+    //maid day handling
+    if (maidDayKA) {
+        //correct noun for single/plural
+        if (maidDayElapsedHours == 23) {
+            dayNounVar = "hour remains";
+        } else {
+            dayNounVar = "hours remain";
+        }
+        msg.channel.send("Today is maid day, time to celebrate! Under " + (24 - maidDayElapsedHours) + " " + dayNounVar + ". *(x" + maidDayMulti+ " spins)*");
     }
 
     //firstOfTheDay handling
@@ -241,6 +300,8 @@ function updateCount(msg) {
                 currentTime = new Date();
                 newServerObj.lastSpin = currentTime - (60000 * coolDownMins);
                 newServerObj.hearto = Math.floor(Math.random() * 20) + 20; //ran 20-40
+                newServerObj.maidDay = 0;
+                newServerObj.maidDayMulti = 1;
                 newServerObj.users = [];
 
                 fullData["servers"].push(newServerObj);
@@ -257,9 +318,10 @@ function updateCount(msg) {
             }
         }
 
+        currentTime = new Date();
+
         //calc spin amount
         oldTime = new Date(spinData["lastSpin"]);
-        currentTime = new Date();
         elapsedMins = Math.floor((currentTime - oldTime) / 60000);
         amount = (elapsedMins - coolDownMins) + 1;
 
@@ -269,6 +331,7 @@ function updateCount(msg) {
         newCallKA = false;
         firstOfTheDay = false;
         heartoKA = false;
+        maidDayKA = false;
         if (newUser) { //create new user entry
             var newUserObj = new Object();
             newUserObj.id = msg.author.id;
@@ -320,6 +383,17 @@ function updateCount(msg) {
                     newCallKA = true;
                 }
 
+                //calc elapsed hours since maid day start
+                maidDayStart = new Date(spinData["maidDay"]);
+                elapsedMaidDayHours = Math.floor((currentTime - maidDayStart) / 3600000);
+
+                //test for maid day
+                maidDayMulti = spinData["maidDayMulti"];
+                if (elapsedMaidDayHours < 24) {
+                    maidDayKA = true;
+                    amount = amount * maidDayMulti;
+                }
+
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
                 
@@ -341,7 +415,7 @@ function updateCount(msg) {
                     console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + `${olduser.name}` + "found a meido no hearto");
                 }
 
-                printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA);
+                printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, elapsedMaidDayHours, maidDayMulti);
             } else { //cooldown not over, no spin, dizzy
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
@@ -352,12 +426,7 @@ function updateCount(msg) {
 
         //if spinKA is still true, save spin details and post spin
         if (spinKA) {
-            newJSON = JSON.stringify(fullData);
-            fs.writeFile('spinData.json', newJSON, function(err) {
-                if (err) {
-                    return console.error(err);
-                }
-            });
+            writeData(fullData);
         }
     });
 }
@@ -395,11 +464,7 @@ function topHiSpins(msg) {
         }
 
         //get server data
-        var spinData = getServerData(data, msg);
-        if (spinData == -1) { //on no server entry
-            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
-            return;
-        }
+        var spinData = getServerData(getFullData(data), msg, true);
         
         var parsedData = [];
 
@@ -430,11 +495,7 @@ function topSpins(msg) {
         }
 
         //get server data
-        var spinData = getServerData(data, msg);
-        if (spinData == -1) { //on no server entry
-            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
-            return;
-        }
+        var spinData = getServerData(getFullData(data), msg, true);
 
         spinData["users"].sort((a, b) => b.spins - a.spins);
 
@@ -456,11 +517,7 @@ function timerUp(msg) {
         }
 
         //get server data
-        var spinData = getServerData(data, msg);
-        if (spinData == -1) { //on no server entry
-            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
-            return;
-        }
+        var spinData = getServerData(getFullData(data), msg, true);
 
         //get timings
         currentTime = new Date();
@@ -484,44 +541,100 @@ function timerUp(msg) {
         }
 
         msg.channel.send("The last maid was spun " + elapsedMins + " mins ago. The cooldown is " + coolDownMins + " mins.\n" + extraInfo + "You **" + verbVar + "** spin a maid now.");
-
     });
 }
 
+//check your number of heartos
 function heartoCheck(msg) {
     fs.readFile('spinData.json', function(err, data) {
         if (err) {
             return console.error(err);
         }
 
-        //get server data
-        var spinData = getServerData(data, msg);
-        if (spinData == -1) { //on no server entry
-            msg.channel.send('This server has not been initialised for maid spin. Try spinning a maid to initialise. View help with *"**@Maid Spin** help"*.');
-            return;
-        }
+        olduser = getUserData(getServerData(getFullData(data), msg, true), msg, true);
 
-        //test for new user in server
-        newUser = true;
-        for (user in spinData["users"]) {
-            if (spinData["users"][user]["id"] == msg.author.id) {
-                olduser = spinData["users"][user];
-                newUser = false;
-                break;
-            }
-        }
-
-        //if new user error
-        if (newUser) {
-            msg.channel.send("You haven't spun any maids yet." + 'View help with *"**@Maid Spin** help"*.');
-        } else {
+        if (olduser) {
             msg.channel.send("You currently have **" + olduser["hearto"] + "** meido no hearto.");
 
-            /*msg.channel.send("Trade x1 for 250 spins with " + '*"**@Maid Spin** hearto spins"*\n' +
+            msg.channel.send("Trade x1 for " + heartoExchangeRate + " spins with " + '*"**@Maid Spin** hearto spins"*\n' +
             "Trade x3 to initiate *MAID DAY* with " + '*"**@Maid Spin** hearto maid day"*\n' +
-            "*(Maid Day is a 24 hour period where **all** spins will be multiplied by 2)*");*/
+            "*(Maid Day is a 24 hour period where **all** spins will be multiplied by 2)*");
         }
     });
+}
+
+//spend heartos, return true is successful false if not
+function spendHearto(cost, msg) {
+    data = fs.readFileSync('spinData.json');
+    fullData = getFullData(data);
+    olduser = getUserData(getServerData(fullData, msg, true), msg, true);
+    if (olduser) {
+        //check balance is valid
+        if (olduser["hearto"] < cost) {
+            msg.channel.send("You do not have enough meido no hearto. *(" + olduser["hearto"] + "/" + cost + ")*");
+            return false;
+        } else {
+            olduser["hearto"] = olduser["hearto"] - cost;
+            writeData(fullData);
+            return true;
+        }
+    }
+}
+
+//trade hearto for spins
+function heartoTrade(msg) {
+    //spend heartos
+    if (spendHearto(1, msg)) {
+        fs.readFile('spinData.json', function(err, data) {
+            fullData = getFullData(data);
+            olduser = getUserData(getServerData(fullData, msg, true), msg, true);
+            olduser["spins"] = olduser["spins"] + heartoExchangeRate;
+
+            msg.channel.send("The meido no hearto dissolves into " + heartoExchangeRate + " tiny maids, all spinning. *(+" + heartoExchangeRate + " spins)*");
+            msg.channel.send("https://i.imgur.com/Hu6nQHB.gif");
+
+            writeData(fullData);
+        });
+    }
+}
+
+//start maid day with hearto
+function heartoMaidDay(msg) {
+    //get final input, should be valid number value, run if valid integer
+    msgArray = msg.content.split(" ");
+    cost = parseInt(msgArray[msgArray.length - 1]);
+    if (Number.isInteger(cost)) {
+        //run if cost is 2 or more
+        if (cost > 1) {
+            //run if enough heartos
+            if (spendHearto(cost, msg)) {
+                fs.readFile('spinData.json', function(err, data) {
+                    fullData = getFullData(data);
+                    spinData = getServerData(fullData, msg, true);
+                    spinData["maidDay"] = new Date();
+                    spinData["maidDayMulti"] = cost;
+        
+                    msg.channel.send("The " + cost + " meido no hearto burst into flames. You have started the maid day ceremony. All spins will be worth " + cost + "x more for 24 hours. ");
+                    if (cost > 4) { //maid day flavour text differs with multiplier
+                        if (cost < 10) {
+                            msg.channel.send("They burn green with the power of a maid's beauty. This is a legendary maid day that will be recorded in maid history forever.");
+                            msg.channel.send("**MAID DAY OF JUSTICE HAS BEGUN**");
+                        } else {
+                            msg.channel.send("They burn white with the power of a maid's tears. This maid day marks a new era of maids.");
+                            msg.channel.send("**MAID DAY OF HEAVEN HAS BEGUN**");
+                        }
+                    } else {
+                        msg.channel.send("**MAID DAY HAS BEGUN**");
+                        msg.channel.send("https://i.imgur.com/fDnQnao.gif");
+                    }
+                    
+                    writeData(fullData);
+                });
+            }
+        }
+    } else {
+        msg.channel.send("You must use a valid number more than 1. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
+    }
 }
 
 //on message
@@ -569,10 +682,27 @@ client.on('message', msg => {
             }
 
             //test for hearto
-            heartoRegex = new RegExp(/.*(heart|kokoro|soul).*/i)
+            heartoRegex = new RegExp(/.*heart.*/i);
             if (n && heartoRegex.test(trueContent)) {
-                n = false;
-                heartoCheck(msg);
+                //trade for spins
+                heartoTradeRegex = new RegExp(/.*(trade|spin).*/i);
+                if (n && heartoTradeRegex.test(trueContent)) {
+                    n = false;
+                    heartoTrade(msg);
+                }
+
+                //trade for maid day
+                heartoMaidDayRegex = new RegExp(/.*(maid day|maidday|maiday).*/i);
+                if (n && heartoMaidDayRegex.test(trueContent)) {
+                    n = false;
+                    heartoMaidDay(msg);
+                }
+
+                //else check hearto count and shop
+                if (n) {
+                    heartoCheck(msg);
+                    n = false;
+                }
             }
 
             //Else then try to spin
