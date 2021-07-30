@@ -403,7 +403,7 @@ function updateCount(msg) {
                     olduser.hiSpin = amount;
                 }
 
-                console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + amount + " spins (ran=" + ran + ") for " + `${olduser.name}` + "(" + `${olduser.spins}` + " total)");
+                console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " - " + amount + " spins (ran=" + ran + ") for " + `${olduser.name}` + " (" + `${olduser.spins}` + " total)");
                 total = olduser.spins;
 
                 //check meido no hearto
@@ -504,6 +504,34 @@ function topSpins(msg) {
         for (user in spinData["users"]) {
             rank = rank + 1;
             topstring = topstring + "\n#" + rank + " : **" + spinData["users"][user]["name"] + "** (" + spinData["users"][user]["spins"] + " spins)";
+        }
+
+        msg.channel.send(topstring);
+    });
+}
+
+//display old leader board
+function topOldSpins(msg) {
+    fs.readFile('oldSpinData.json', function(err, data) {
+        if (err) {
+            msg.channel.send("This bot is not configured with data from Maid Spin v1.");
+            return console.error(err);
+        }
+
+        //get server data
+        var spinData = getServerData(getFullData(data), msg, false);
+        if (spinData == 0) { //notify if no old data
+            msg.channel.send("This server has no data from Maid Spin v1.");
+            return;
+        }
+
+        spinData["users"].sort((a, b) => b.spins - a.spins);
+
+        topstring = "***Top Maid Spinners:***";
+        rank = 0;
+        for (user in spinData["users"]) {
+            rank = rank + 1;
+            topstring = topstring + "\n#" + rank + " : **" + spinData["users"][user]["name"] + "** " + spinData["users"][user]["spins"] + " spins (highest " + spinData["users"][user]["hiSpin"] + ")";
         }
 
         msg.channel.send(topstring);
@@ -665,6 +693,13 @@ client.on('message', msg => {
                 if (n && tophRegex.test(trueContent)) {
                     n = false;
                     topHiSpins(msg);
+                }
+
+                //top old
+                topOldRegex = new RegExp(/.*old.*/i);
+                if (n && topOldRegex.test(trueContent)) {
+                    n = false;
+                    topOldSpins(msg);
                 }
 
                 //else go basic leaderboard
