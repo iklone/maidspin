@@ -842,6 +842,13 @@ client.on('message', msg => {
                 spinTest(msg);
             }
 
+            //Mahoro wave easter egg
+            waveRegex = new RegExp(/.*(wav).*/i);
+            if (waveRegex.test(msg.content)) {
+                msg.channel.send("https://i.imgur.com/jQpZFsp.gif");
+                n = false;
+            }
+
             //Else then help
             if (n) {
                 spinHelp(msg);
