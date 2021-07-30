@@ -12,29 +12,63 @@ const heartoExchangeRate = 250;
 
 //GIF DB
 const GIFdizzy = ["https://i.imgur.com/spr5vSH.gif",    //chiyo dizzy
+"https://i.imgur.com/spr5vSH.gif",
+"https://i.imgur.com/spr5vSH.gif",
 "https://i.imgur.com/6K8xuk1.gif"];                     //minawa dizzy
-const GIFfirst = ["https://i.imgur.com/kBwlzG5.gif"];   //tohru nerd
-const GIFhearto = ["https://i.imgur.com/ks69ysE.gif"];  //mio
-const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif"];      //mori
-const GIFx2 = ["https://i.imgur.com/WxIrcsu.gif"];      //maria
-const GIFx3 = ["https://i.imgur.com/rvdiMVi.gif"];      //misaki
-const GIFx5 = ["https://i.imgur.com/z6sjRXh.gif"];      //maika
-const GIFx10 = ["https://i.imgur.com/swxzqBI.gif"];     //hinako
-const GIFx25 = ["https://i.imgur.com/RJCx1rX.gif"];     //bikini mori
 
-const GIFold = ["https://i.imgur.com/7hqhB0M.gif",    //0 mori (multi moris to stay a common spin)
-"https://i.imgur.com/7hqhB0M.gif",                      //1 mori
-"https://i.imgur.com/7hqhB0M.gif",                      //2 mori
-"https://i.imgur.com/WxIrcsu.gif",                      //3 maria
-"https://i.imgur.com/2zr3Y66.gif",                      //4 shinobu
-"https://i.imgur.com/rvdiMVi.gif",                      //5 misaki
-"https://i.imgur.com/g6uPz0v.gif",                      //6 sun
-"https://i.imgur.com/swxzqBI.gif",                      //7 hinako
-"https://i.imgur.com/ewDf0ZS.gif",                      //8 siesta
-"https://i.imgur.com/ESBg2pr.gif",                      //9 aqua
-"https://i.imgur.com/0axpToa.gif",                      //10 hotori mug
-"https://i.imgur.com/z6sjRXh.gif",                      //11 maika
-"https://i.imgur.com/RJCx1rX.gif"];                     //12 bikini mori
+const GIFfirst = ["https://i.imgur.com/kBwlzG5.gif"];   //tohru nerd
+
+const GIFhearto = ["https://i.imgur.com/ks69ysE.gif",   //mio
+"https://i.imgur.com/ks69ysE.gif",
+"https://i.imgur.com/ks69ysE.gif",
+"https://i.imgur.com/ZsAtJ79.gif",                      //illya
+"https://i.imgur.com/u0THn5v.gif",                      //tohru hearto
+"https://i.imgur.com/Ulnp3Pn.gif"];                     //shomin
+
+const GIFx1 = ["https://i.imgur.com/7hqhB0M.gif",       //mori
+"https://i.imgur.com/7hqhB0M.gif",
+"https://i.imgur.com/7hqhB0M.gif",
+"https://i.imgur.com/7hqhB0M.gif",
+"https://i.imgur.com/7hqhB0M.gif",
+"https://i.imgur.com/7hqhB0M.gif",
+"https://i.imgur.com/2zr3Y66.gif",                      //shinobu
+"https://i.imgur.com/rvdiMVi.gif",                      //misaki
+"https://i.imgur.com/g6uPz0v.gif",                      //sun
+"https://i.imgur.com/ewDf0ZS.gif",                      //siesta
+"https://i.imgur.com/fnFiCSt.gif",                      //chiyo syaro
+"https://i.imgur.com/zb30FvR.gif",                      //kohaku
+"https://i.imgur.com/r7311cq.gif",                      //mahoro dress
+"https://i.imgur.com/xmyBake.gif",                      //mahoro summer
+"https://i.imgur.com/pdRg9wY.gif",                      //mayu
+"https://i.imgur.com/5e2WlD2.gif",                      //usada ice
+"https://i.imgur.com/WxIrcsu.gif"];                     //maria
+
+const GIFx2 = ["https://i.imgur.com/ESBg2pr.gif",       //aqua
+"https://i.imgur.com/H6ejqG9.gif",                      //comic girls
+"https://i.imgur.com/gDSmFko.gif",                      //emilyko
+"https://i.imgur.com/dkZXDEJ.gif",                      //mahoro minawa
+"https://i.imgur.com/wZB84I2.gif",                      //tohru kanna
+"https://i.imgur.com/WTcm1zq.gif"];                     //uchimaid
+
+const GIFx3 = ["https://i.imgur.com/swxzqBI.gif",       //hinako note
+"https://i.imgur.com/yz6XX5b.gif",                      //hotori sing
+"https://i.imgur.com/EJcsTXG.gif",                      //he is my master
+"https://i.imgur.com/jiwrXYq.gif",                      //tohru old
+"https://i.imgur.com/DPSNmnB.gif"];                     //chiyo
+
+const GIFx5 = ["https://i.imgur.com/0axpToa.gif",       //hotori mug
+"https://i.imgur.com/lLscYGH.gif",                      //kurumi
+"https://i.imgur.com/viNIPJK.gif",                      //usada rice
+"https://i.imgur.com/JJWccfF.gif"];                     //may
+const GIFbirth = ["https://i.imgur.com/tBRfWSr.gif"];   //mahoro cake
+const GIFxmas = ["https://i.imgur.com/N8qbwqR.gif"];    //mahoro christmas
+const GIFmatic = ["https://i.imgur.com/z6sjRXh.gif"];   //maiko rotate
+
+const GIFx10 = ["https://i.imgur.com/2Uy7EMA.gif",      //dejiko
+"https://i.imgur.com/yGPPyon.gif"];                     //mahoro fast
+
+const GIFbikini = ["https://i.imgur.com/RJCx1rX.gif"];  //bikini mori
+const GIFyukata = ["https://i.imgur.com/TezaN62.gif"];  //yukata mori
 
 //spin regex
 const maidWords = "maid|meid|mori|mahoro|maria|tohru";
@@ -149,26 +183,43 @@ function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheD
     msg.channel.send(`${msg.author}` + " spun " + spins + " " + nounVar + "! *(" + total + " spins total)*");
 
     //select multiplier message
+    flavourRan = Math.floor(Math.random() * 100) + 1; //1-100
     switch(spinType) {
         case 2:
             multiMessage = "The maids span extra fast today! *(x2 spins)*";
             gif = GIFx2;
             break;
         case 3:
-            multiMessage = "The maids span extra-extra fast today! *(x3 spins)*";
+            multiMessage = "Many maids spin better than one. *(x3 spins)*";
             gif = GIFx3;
             break;
         case 5:
-            multiMessage = "We brought the maid-spinomatic out for this one! *(x5 spins)*";
-            gif = GIFx5;
+            if (flavourRan < 55) { //basic x5
+                multiMessage = "With maids, you're one step closer to paradise. *(x5 spins)*";
+                gif = GIFx5;
+            } else if (flavourRan < 70) { //birthday
+                multiMessage = "With maids, every day is your birthday! *(x5 spins)*";
+                gif = GIFbirth;
+            } else if (flavourRan < 85) { //christmas
+                multiMessage = "With maids, every day is Christmas day! *(x5 spins)*";
+                gif = GIFxmas;
+            } else { //spinomatic
+                multiMessage = "We brought the maid-spinomatic out for this one! *(x5 spins)*";
+                gif = GIFmatic;
+            }
             break;
         case 10:
-            multiMessage = "Supersonic spinning! *(x10 spins)*";
+            multiMessage = "The maids have reached supersonic speeds! *(x10 spins)*";
             gif = GIFx10;
             break;
         case 25:
-            multiMessage = "Wow! Today is the beach episode! *(x25 spins)*";
-            gif = GIFx25;
+            if (flavourRan < 67) {
+                multiMessage = "Wow! Today is the beach episode! *(x25 spins)*";
+                gif = GIFbikini;
+            } else {
+                multiMessage = "Wow! Today is the summer festival episode! *(x25 spins)*";
+                gif = GIFyukata;
+            }
             break;
         default:
             gif = GIFx1;
@@ -366,11 +417,11 @@ function updateCount(msg) {
                     spinType = 25;
                 } else if (ran > 96) {  //97-99 10x
                     spinType = 10;
-                } else if (ran > 90) {  //91-96 5x
+                } else if (ran > 88) {  //89-96 5x
                     spinType = 5;
-                } else if (ran > 77) {  //78-91 3x
+                } else if (ran > 75) {  //78-91 3x
                     spinType = 3;
-                } else if (ran > 57) {  //58-77 2x
+                } else if (ran > 55) {  //58-77 2x
                     spinType = 2;
                 } else {                //1-57  1x
                     spinType = 1;
@@ -446,13 +497,14 @@ function spinTest(msg) {
 //print help
 function spinHelp(msg) {
     msg.channel.send("***Maid Spin Help:***\n" +
-    "This bot lets you do what everyone has always wanted to do: **SPIN MAIDS**.\n" +
+    "This bot lets you do what you've always wanted to do: **SPIN MAIDS**.\n" +
     'To spin a maid simply command her to spin by saying *"Spin the maid!"* or something similar into the chat.\n' +
     'The maids can only spin every **' + coolDownMins + " mins**, they get dizzy!\n" +
     'The maids can spin for as many minutes as have passed since they recovered. So if you spin 5 mins after they have recovered, you get 5 spin points.\n' +
-    'You can check on the maids\' dizziness in more detail using *"**@Maid Spin** timer"*\n' +
+    'You will get extra spins if you spin the maids using a message no one has used before, so be creative.\n' +
+    'Occasionally you will find a mysterious *meido no hearto*, use *"**@Maid Spin** hearto"* to see what you can do with them.\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
-    'To view who had the strongest maid spin, use *"**@Maid Spin** tops"*.\n' +
+    'To view who had the biggest spin, use *"**@Maid Spin** tops"*.\n' +
     '*Bot built and maintained by **iklone**: http://iklone.org*');
 }
 
@@ -756,11 +808,11 @@ client.on('message', msg => {
             spinTest(msg);
         }
 
+        //important jojo PSA. Comment out if you don't want this.
         jojoRegex = new RegExp(/.*(jojo).*/i);
         if (jojoRegex.test(msg.content)) {
             msg.channel.send("Jojo is bad.");
         }
-
     }
 });
 
