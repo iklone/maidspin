@@ -3,5 +3,6 @@ node_modules/
 /password.config
 /spinData.json
 /callData.json
+/oldSpinData.json
 /ignoreFolder
 package-lock.json
