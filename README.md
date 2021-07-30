@@ -30,15 +30,16 @@ You can either add the public instance to your server [here](https://discord.com
 - To trade some meido no hearto to start a maid day, use *"**@Maid Spin** hearto maid day X"*, where X is the number you want to use.
 - To wave at Mahoro, use *"**@Maid Spin** wave"*.
 
-### Set Up:
-- To set up your own instance of this bot, first create a Discord application and bot on "https://discord.com/developers/applications".
-- Move the files in /default into the root (password.config and spinData.json).
-- In password.config, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
-- Install the discord.js module with npm (npm install discord.js).
-- Invite the bot to your server by going to "https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot", replacing CLIENT_ID with your application's client ID.
-- The bot requires a few permissions to function. It must be able to: **view/send messages** in at least one channel and **embed links**.
-- Run the application with "node index.js".
-- Spin maids!
+### Set Up Instance:
+1. To set up your own instance of this bot, first create a Discord application and bot on "https://discord.com/developers/applications".
+2. Move the files in /default into the root (password.config and spinData.json).
+3. In password.config, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
+4. Open index.js in a text editor and configurate the variables at the top of the file labelled CONFIG as you wish.
+5. Install the discord.js module with npm (npm install discord.js).
+6. Invite the bot to your server by going to "https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot", replacing CLIENT_ID with your application's client ID.
+7. The bot requires a few permissions to function. It must be able to: **view/send messages** in at least one channel and **embed links**.
+8. Run the application with "node index.js".
+9. Spin maids!
 
 ### GIF Sources:
 For more details see the notes for each GIF within the source code (at the top of index.js).
