@@ -1,13 +1,17 @@
 const Discord = require('discord.js');
 var fs = require('fs');
-
 const client = new Discord.Client();
+
+//CONFIG: change to your discord application's ID
 const myID = "776090583362043906";
 
-const coolDownMins = 0;
-//base 5 mins
+//CONFIG: change to how long you want between spins
+//default 5
+const coolDownMins = 5;
 
+//CONFIG: change to how many spins you want 1 hearto to be worth
 //1 hearto = x spins
+//default 250
 const heartoExchangeRate = 250;
 
 //GIF DB
