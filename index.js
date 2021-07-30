@@ -161,10 +161,6 @@ function getUserData(spinData, msg, verboseKA) {
     return olduser;
 }
 
-function writeToSpinData(data) {
-
-}
-
 function getGIF(GIFDB) {
     selectedGIF = Math.floor(Math.random() * GIFDB.length); //0 - DB.len
 
@@ -694,14 +690,16 @@ function heartoMaidDay(msg) {
                     spinData["maidDay"] = new Date();
                     spinData["maidDayMulti"] = cost;
         
-                    msg.channel.send("The " + cost + " meido no hearto burst into flames. You have started the maid day ceremony. All spins will be worth " + cost + "x more for 24 hours. ");
+                    msg.channel.send("The " + cost + " meido no hearto burst into flames. You have completed the maid day ritual. All spins will be worth " + cost + "x more for 24 hours. ");
                     if (cost > 4) { //maid day flavour text differs with multiplier
                         if (cost < 10) {
-                            msg.channel.send("They burn green with the power of a maid's beauty. This is a legendary maid day that will be recorded in maid history forever.");
+                            msg.channel.send("They burn pink with the power of a maid's beauty. This is a legendary maid day that will be recorded in maid history forever.");
                             msg.channel.send("**MAID DAY OF JUSTICE HAS BEGUN**");
+                            msg.channel.send("https://i.imgur.com/e7CMBJM.gif");
                         } else {
-                            msg.channel.send("They burn white with the power of a maid's tears. This maid day marks a new era of maids.");
+                            msg.channel.send("They burn a rainbow of colours with the power of a maid's tears. This maid day marks a new era of maids.");
                             msg.channel.send("**MAID DAY OF HEAVEN HAS BEGUN**");
+                            msg.channel.send("https://i.imgur.com/bQHwKhE.gif");
                         }
                     } else {
                         msg.channel.send("**MAID DAY HAS BEGUN**");
@@ -711,6 +709,8 @@ function heartoMaidDay(msg) {
                     writeData(fullData);
                 });
             }
+        } else {
+            msg.channel.send("You don't want to do that. A 1x multiplier won't do anything. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
         }
     } else {
         msg.channel.send("You must use a valid number more than 1. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
