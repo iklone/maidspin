@@ -500,7 +500,8 @@ function spinHelp(msg) {
     'You will get extra spins if you spin the maids using a message no one has used before, so be creative.\n' +
     'Occasionally you will find a mysterious *meido no hearto*, use *"**@Maid Spin** hearto"* to see what you can do with them.\n' +
     'To view who has spun the most maids, use *"**@Maid Spin** top"*.\n' +
-    'To view who had the biggest spin, use *"**@Maid Spin** tops"*.\n' +
+    'To view who had the biggest spin, use *"**@Maid Spin** toph"*.\n' +
+    'To view the leaderboard from v1, use *"**@Maid Spin** topold"*.\n' +
     '*Bot built and maintained by **iklone**: http://iklone.org*');
 }
 
@@ -632,9 +633,11 @@ function heartoCheck(msg) {
         if (olduser) {
             msg.channel.send("You currently have **" + olduser["hearto"] + "** meido no hearto.");
 
-            msg.channel.send("Trade x1 for " + heartoExchangeRate + " spins with " + '*"**@Maid Spin** hearto spins"*\n' +
-            "Trade x3 to initiate *MAID DAY* with " + '*"**@Maid Spin** hearto maid day"*\n' +
-            "*(Maid Day is a 24 hour period where **all** spins will be multiplied by 2)*");
+            msg.channel.send("With your meido no hearto you can either:\n" + 
+            "Trade x1 for " + heartoExchangeRate + " spins with " + '*"**@Maid Spin** hearto spins"*\n' +
+            "Trade any number to initiate *MAID DAY* with " + '*"**@Maid Spin** hearto maid day X"*\n' +
+            "*Maid Day* is a 24 hour period where all spins will be given a multiplier." +
+            "The number you specify with X will be both the cost and the multiplier for the day.");
         }
     });
 }
@@ -710,7 +713,7 @@ function heartoMaidDay(msg) {
                 });
             }
         } else {
-            msg.channel.send("You don't want to do that. A 1x multiplier won't do anything. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
+            msg.channel.send("You don't want to do that, a 1x multiplier won't do anything. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
         }
     } else {
         msg.channel.send("You must use a valid number more than 1. Use the form " + '*"**@Maid Spin** maid day X"*, where X is the multiplier you want.');
@@ -741,7 +744,7 @@ client.on('message', msg => {
             topRegex = new RegExp(/.*top.*/i);
             if (n && topRegex.test(trueContent)) {
                 //top hispin
-                tophRegex = new RegExp(/.*(tops|top-s|top s).*/i);
+                tophRegex = new RegExp(/.*(toph|top-h|top h).*/i);
                 if (n && tophRegex.test(trueContent)) {
                     n = false;
                     topHiSpins(msg);
