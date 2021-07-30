@@ -167,7 +167,12 @@ function getGIF(GIFDB) {
     return GIFDB[selectedGIF];
 }
 
-function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, maidDayElapsedHours, maidDayMulti) {
+function atID(id) {
+    atString = "<@" + id + ">";
+    return atString;
+}
+
+function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, maidDayElapsedHours, maidDayMulti, overtaken) {
     //correct noun for single/plural
     if (spins == 1) {
         nounVar = "maid";
@@ -260,6 +265,27 @@ function printSpin(msg, spins, total, spinType, hiSpinKA, newCallKA, firstOfTheD
         gif = GIFhearto;
     }
 
+    //notify overtaken users
+    if (overtaken.length > 0) {
+        userNoun = "user ";
+        overtakenList = atID(overtaken[overtaken.length - 1]);
+        overtaken.pop();
+
+        if (overtaken.length > 0) {
+            userNoun = "users ";
+            overtakenList = atID(overtaken[overtaken.length - 1]) + " and " + overtakenList;
+        }
+        overtaken.pop();
+
+        if (overtaken.length > 0) {
+            for (user in overtaken) {
+                overtakenList = atID(overtaken[user]) + ", " +  overtakenList;
+            }
+        }
+
+        msg.channel.send("You have overtaken " + userNoun + overtakenList + ".");
+    }
+
     //send GIF
     msg.channel.send(getGIF(gif));
 }
@@ -315,6 +341,17 @@ function testNewCall(msg) {
     }
 
     return newCallKA;
+}
+
+//check for overtaking on rank
+function checkOvertaken(spinData, oldAmount, newAmount) {
+    overtaken = [];
+    for (user in spinData["users"]) {
+        if (spinData["users"][user]["spins"] >= oldAmount && spinData["users"][user]["spins"] < newAmount) {
+            overtaken.push(spinData["users"][user]["id"]);
+        }
+    }
+    return overtaken;
 }
 
 //calculate spins and update data files
@@ -399,6 +436,7 @@ function updateCount(msg) {
             total = newUserObj.spins;
         } else { //old user, check for timeout
             if (elapsedMins >= coolDownMins) { //cooldown over, SPIN
+                oldAmount = olduser["spins"];
                 
                 //check for firstOfTheDay
                 if (oldTime.getDate() != currentTime.getDate()) {
@@ -441,9 +479,13 @@ function updateCount(msg) {
                     amount = amount * maidDayMulti;
                 }
 
+
                 spinData["lastSpin"] = currentTime;
                 olduser.spins = olduser.spins + amount;
-                
+
+                //check if overtaken anyone
+                overtaken = checkOvertaken(spinData, oldAmount, olduser.spins);
+
                 //update hispin if higher than current top
                 if (!(olduser.hasOwnProperty("hiSpin") && amount <= olduser.hiSpin)) {
                     hiSpinKA = true;
@@ -462,7 +504,7 @@ function updateCount(msg) {
                     console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + `${olduser.name}` + "found a meido no hearto");
                 }
 
-                printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, elapsedMaidDayHours, maidDayMulti);
+                printSpin(msg, amount, total, spinType, hiSpinKA, newCallKA, firstOfTheDay, heartoKA, maidDayKA, elapsedMaidDayHours, maidDayMulti, overtaken);
             } else { //cooldown not over, no spin, dizzy
                 spinKA = false;
                 msg.channel.send('The maids are too dizzy to spin.\nCheck the cooldown with *"**@Maid Spin** timer"*.');
