@@ -90,26 +90,6 @@ const spinWords = "spin|twirl|rotat|turn|twist|gyrat|spun|span|revol|roll|spiral
 //on startup
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    
-    /*fs.readFile('spinData.json', function(err, data) {
-        if (err) {
-            return console.error(err);
-        }
-
-        var fullData = JSON.parse(data.toString());
-        currentTime = new Date();
-
-        for (server in fullData["servers"]) {
-            fullData["servers"][server]["lastSpin"] = currentTime - (60000 * coolDownMins);
-        }
-
-        newJSON = JSON.stringify(fullData);
-        fs.writeFile('spinData.json', newJSON, function(err) {
-            if (err) {
-                return console.error(err);
-            }
-        });
-    });*/
 });
 
 //return fullData
@@ -536,10 +516,10 @@ function updateCount(msg) {
                     }
 
                     //reset hearto timer
-                    //spinData["hearto"] = Math.floor(Math.random() * 20) + 10; //ran 10-30
-                    //hearto reset SPECIAL
+                    spinData["hearto"] = Math.floor(Math.random() * 20) + 10; //ran 10-30
+                    //hearto reset SPECIAL options
                     //spinData["hearto"] = 1;
-                    spinData["hearto"] = Math.floor(Math.random() * 5) + 5; //ran 5-15
+                    //spinData["hearto"] = Math.floor(Math.random() * 5) + 5; //ran 5-15
                     console.log(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + `${olduser.name}` + " found a meido no hearto");
                 }
 
@@ -1009,12 +989,12 @@ client.on('message', msg => {
             }
         }
 
-        //spin
+        //spin maids
         if (n) {
             spinTest(msg);
         }
 
-        //important jojo PSA. Comment out if you don't want this.
+        //very important functionality. DO NOT DELETE!
         jojoRegex = new RegExp(/.*(jojo).*/i);
         if (jojoRegex.test(msg.content)) {
             msg.channel.send("Jojo is bad.");
@@ -1022,6 +1002,7 @@ client.on('message', msg => {
     }
 });
 
+//Login to bot using password.config
 fs.readFile('password.config', function(err, data) {
     botSecret = data.toString();
     botSecret = botSecret.replace(/(\r\n|\n|\r)/gm, "");
