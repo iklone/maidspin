@@ -24,17 +24,16 @@ You can either add the public instance to your server [here](https://discord.com
 - You can check on the maids' dizziness in more detail using *"**@Maid Spin** timer"*.
 - To view who has spun the most maids, use *"**@Maid Spin** top"*.
 - To view who has had the biggest maid spin, use *"**@Maid Spin** toph"*.
-- To view the scoreboard from v1 (defunct), use *"**@Maid Spin** topold"*.
 - To view your current meido no hearto, and meido no hearto help, use *"**@Maid Spin** hearto"*.
 - To trade a meido no hearto for some spins, use *"**@Maid Spin** hearto spins"*.
 - To trade some meido no hearto to start a maid day, use *"**@Maid Spin** hearto maid day X"*, where X is the number you want to use.
-- To wave at Mahoro, use *"**@Maid Spin** wave"*.
+- A few other secret functions...
 
 ### Set Up Instance:
 1. To set up your own instance of this bot, first create a Discord application and bot on "https://discord.com/developers/applications".
-2. Move the files in /default into the root (password.config and spinData.json).
-3. In password.config, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
-4. Open index.js in a text editor and configurate the variables at the top of the file labelled CONFIG as you wish.
+2. Move the files in /default into the root (password.config, spinData.json & callData.json).
+3. Open password.config in any text editor, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
+4. Open index.js in a text editor and configurate the variables at the top of the file labelled CONFIG as you wish. Or leave as default.
 5. Install the discord.js module with npm (npm install discord.js).
 6. Invite the bot to your server by going to "https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot", replacing CLIENT_ID with your application's client ID.
 7. The bot requires a few permissions to function. It must be able to: **view/send messages** in at least one channel and **embed links**.
@@ -70,3 +69,9 @@ The anime used are:
 - Shomin Sample
 - Blend S
 - Futari wa Precure
+- Evangelion
+- Bocchi the Rock
+- Komi-san
+- Tachimukae, Kasane Teto
+- Ranma ½
+- Odyk
