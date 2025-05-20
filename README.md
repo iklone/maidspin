@@ -33,7 +33,7 @@ You can either add the public instance to your server [here](https://discord.com
 1. To set up your own instance of this bot, first create a Discord application and bot on "https://discord.com/developers/applications".
 2. Move the files in /default into the root (password.config, spinData.json & callData.json).
 3. Open password.config in any text editor, paste your bot's "secret" (not the application's secret). This will link your bot to the code.
-4. Open index.js in a text editor and configurate the variables at the top of the file labelled CONFIG as you wish. Or leave as default.
+4. Open index.js in a text editor and configurate the variables at the top of the file labelled CONFIG as you wish. The only variable you must change is "myID" to your bot's ID.
 5. Install the discord.js module with npm (npm install discord.js).
 6. Invite the bot to your server by going to "https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot", replacing CLIENT_ID with your application's client ID.
 7. The bot requires a few permissions to function. It must be able to: **view/send messages** in at least one channel and **embed links**.
